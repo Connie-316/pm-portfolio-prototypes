@@ -1,15 +1,15 @@
 <!--
-  优惠券模块 · 领券中心 · 领券入口
-  版本: v2.18 | 更新: 2026-06-22
-  关联PRD: §4.3 发放方式 / §4.8 券状态显示逻辑（PRD v2.0）
+  优惠券模块 · 领券中心 · 异常态
+  版本: v2.0 | 更新: 2026-10-06
+  关联PRD: §5.1 领券主流程异常路径, §4.8 券状态显示逻辑（PRD v2.0）
 -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>工业品商城 - 领券中心</title>
-  <style>
+  <title>工业品商城 - 领券中心-券已抢光</title>
+<style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body {
       font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -278,21 +278,56 @@
       animation: fadeIn 0.2s;
     }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; }
+
+    /* ===== 异常态补充 ===== */
+    .demo-note {
+      margin: 0 12px 10px; padding: 9px 12px; border-radius: 8px;
+      background: #F0F6FF; border: 1px solid #D6E4FF;
+      font-size: 11.5px; color: #3370FF; line-height: 1.5;
+    }
+    .demo-note b { font-weight: 600; }
+    .demo-note .note-reset {
+      float: right; color: #3370FF; text-decoration: underline;
+      cursor: pointer; font-size: 11.5px;
+    }
+    .card-soldout { position: absolute; top: 0; right: 0;
+      background: #999; color: #fff; font-size: 10px;
+      padding: 3px 10px; border-radius: 0 12px 0 8px; letter-spacing: .5px; }
+    .coupon-card.soldout::before { background: #E5E5E5; }
+    .coupon-card.soldout .coupon-left { background: #F5F5F5; }
+    .coupon-card.soldout .coupon-price,
+    .coupon-card.soldout .coupon-unit { color: #999; }
+    .btn-soldout { padding: 6px 16px; background: #F5F5F5; color: #999;
+      border-radius: 14px; font-size: 12px; border: 1px solid #E5E5E5; }
+    .stock-hint { font-size: 11px; color: #FF6B35; margin-bottom: 8px; }
+
+    /* ===== 页面级错误态 ===== */
+    .error-state { padding: 90px 32px 0; text-align: center; }
+    .error-icon { width: 68px; height: 68px; margin: 0 auto 18px;
+      border-radius: 50%; background: #F5F5F5;
+      display: flex; align-items: center; justify-content: center; }
+    .error-icon svg { width: 32px; height: 32px; stroke: #BFBFBF;
+      fill: none; stroke-width: 1.8; }
+    .error-title { font-size: 15px; font-weight: 600; color: #333; margin-bottom: 8px; }
+    .error-desc { font-size: 12.5px; color: #999; line-height: 1.6; margin-bottom: 22px; }
+    .error-code { font-size: 11px; color: #C0C0C0; margin-top: 20px; }
+    .btn-retry { display: inline-block; padding: 10px 34px;
+      background: linear-gradient(90deg, #FF6B35, #F02C2C); color: #fff;
+      border: none; border-radius: 20px; font-size: 14px; font-weight: 600;
+      cursor: pointer; box-shadow: 0 3px 10px rgba(240,44,44,.25); }
+    .btn-retry-ghost { display: inline-block; padding: 10px 26px;
+      background: #fff; color: #666; border: 1px solid #E5E5E5;
+      border-radius: 20px; font-size: 14px; cursor: pointer; margin-left: 10px; }
   </style>
 </head>
 <body>
 
   <div class="phone-frame">
 
-    <!-- 顶部 -->
     <div class="top-fixed">
       <div class="status-bar">
         <div>9:41</div>
-        <div class="status-icons">
-          <svg width="18" height="14" viewBox="0 0 24 16"><rect x="0" y="5" width="22" height="10" rx="3" stroke="#333" stroke-width="1.5" fill="none"/><rect x="22" y="7" width="2" height="6" rx="1" fill="#333"/></svg>
-          <svg width="18" height="12" viewBox="0 0 24 12"><path d="M2 6 L6 2 L10 6 L14 2 L18 6 L22 2" stroke="#333" stroke-width="1.5" fill="none"/></svg>
-          <svg width="18" height="12" viewBox="0 0 24 12"><rect x="0" y="0" width="22" height="12" rx="3" stroke="#333" stroke-width="1.5" fill="none"/><rect x="22" y="3" width="2" height="6" rx="1" fill="#333"/></svg>
-        </div>
+        <div class="status-icons"><svg width="18" height="14" viewBox="0 0 24 16"><rect x="0" y="5" width="22" height="10" rx="3" stroke="#333" stroke-width="1.5" fill="none"/><rect x="22" y="7" width="2" height="6" rx="1" fill="#333"/></svg><svg width="18" height="12" viewBox="0 0 24 12"><path d="M2 6 L6 2 L10 6 L14 2 L18 6 L22 2" stroke="#333" stroke-width="1.5" fill="none"/></svg><svg width="18" height="12" viewBox="0 0 24 12"><rect x="0" y="0" width="22" height="12" rx="3" stroke="#333" stroke-width="1.5" fill="none"/><rect x="22" y="3" width="2" height="6" rx="1" fill="#333"/></svg></div>
       </div>
       <div class="nav-bar">
         <div class="nav-back">‹</div>
@@ -306,39 +341,45 @@
       </div>
     </div>
 
-    <!-- 页面内容 -->
     <div class="content">
 
-      <!-- 可领取 Tab（默认显示，按快过期优先排序） -->
       <div class="tab-content active" data-tab="available">
-        <div class="summary-bar">共 2 张可领取</div>
+        <div class="summary-bar">共 3 张可领取</div>
+        <div class="demo-note">
+          <b>异常态演示</b>：库存为 0，以及并发抢最后 1 张时的领取失败。
+          <span class="note-reset" onclick="resetDemo()">↻ 重置演示</span>
+        </div>
         <div class="coupon-list">
 
           <div class="coupon-card">
-            <div class="coupon-left">
-              <div class="coupon-price">8</div>
-              <div class="coupon-unit">折</div>
-              <div class="coupon-threshold">满300可用</div>
+            <div class="coupon-left"><div class="coupon-price">¥50</div><div class="coupon-unit">满500可用</div><div class="coupon-threshold">无门槛</div></div>
+            <div class="coupon-right">
+              <div class="coupon-name">满500减50<span class="coupon-tag tag-brand">品牌券</span></div>
+              <div class="coupon-scope">适用范围：全场商品</div>
+              <div class="coupon-valid">有效期至：2026-06-30</div>
+              <div class="coupon-action"><button class="btn-claim" onclick="claimOk(this)">立即领取</button></div>
             </div>
+          </div>
+
+          <div class="coupon-card soldout" id="cardSoldout">
+            <div class="card-soldout">已抢光</div>
+            <div class="coupon-left"><div class="coupon-price">8</div><div class="coupon-unit">折</div><div class="coupon-threshold">满300可用</div></div>
             <div class="coupon-right">
               <div class="coupon-name">限时8折券 <span class="coupon-tag tag-cat">品类券</span></div>
               <div class="coupon-scope">适用范围：模具钢/特种钢材</div>
               <div class="coupon-valid">有效期至：2026-06-15（还剩5天）</div>
-              <div class="coupon-action"><button class="btn-claim" onclick="claimCoupon(this)">立即领取</button></div>
+              <div class="coupon-action"><button class="btn-soldout">已领完</button></div>
             </div>
           </div>
 
-          <div class="coupon-card">
-            <div class="coupon-left">
-              <div class="coupon-price">¥50</div>
-              <div class="coupon-unit">满500可用</div>
-              <div class="coupon-threshold">无门槛</div>
-            </div>
+          <div class="coupon-card" id="cardLast">
+            <div class="coupon-left"><div class="coupon-price">¥20</div><div class="coupon-unit">满200可用</div><div class="coupon-threshold">无门槛</div></div>
             <div class="coupon-right">
-              <div class="coupon-name">满500减50<span class="coupon-tag tag-brand">品牌券</span></div>
+              <div class="coupon-name">满200减20 <span class="coupon-tag tag-new">新客专享</span></div>
               <div class="coupon-scope">适用范围：全场商品</div>
-              <div class="coupon-valid">有效期至：2026-06-30（还剩15天）</div>
-              <div class="coupon-action"><button class="btn-claim" onclick="claimCoupon(this)">立即领取</button></div>
+              <div class="coupon-valid">有效期至：2026-06-30</div>
+              <div class="stock-hint" id="stockHint">仅剩 3 张</div>
+              <div class="coupon-action"><button class="btn-claim" id="btnLast" onclick="claimLast(this)">立即领取</button></div>
             </div>
           </div>
 
@@ -349,65 +390,10 @@
       <div class="tab-content" data-tab="claimed">
         <div class="summary-bar">共 1 张已领取</div>
         <div class="coupon-list">
-
-          <div class="coupon-card" onclick="location.href='v2.0-WX-11优惠券去使用商品列表.html'">
-            <div class="coupon-left">
-              <div class="coupon-price">¥20</div>
-              <div class="coupon-unit">满200可用</div>
-              <div class="coupon-threshold">无门槛</div>
-            </div>
+          <div class="coupon-card">
+            <div class="coupon-left"><div class="coupon-price">¥20</div><div class="coupon-unit">满200可用</div><div class="coupon-threshold">无门槛</div></div>
             <div class="coupon-right">
               <div class="coupon-name">满200减20 <span class="coupon-tag tag-used">已领取</span></div>
-              <div class="coupon-scope">适用范围：全场商品</div>
-              <div class="coupon-valid">有效期至：2026-06-30</div>
-              <div class="coupon-action"><button class="btn-gouse" onclick="event.stopPropagation();location.href='v2.0-WX-11优惠券去使用商品列表.html'">去使用 →</button></div>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      <!-- 全部 Tab -->
-      <div class="tab-content" data-tab="all">
-        <div class="summary-bar">共 3 张优惠券</div>
-        <div class="coupon-list">
-
-          <div class="coupon-card">
-            <div class="coupon-left">
-              <div class="coupon-price">8</div>
-              <div class="coupon-unit">折</div>
-              <div class="coupon-threshold">满300可用</div>
-            </div>
-            <div class="coupon-right">
-              <div class="coupon-name">限时8折券 <span class="coupon-tag tag-cat">品类券</span></div>
-              <div class="coupon-scope">适用范围：模具钢/特种钢材</div>
-              <div class="coupon-valid">有效期至：2026-06-15（还剩5天）</div>
-              <div class="coupon-action"><button class="btn-claim" onclick="claimCoupon(this)">立即领取</button></div>
-            </div>
-          </div>
-
-          <div class="coupon-card">
-            <div class="coupon-left">
-              <div class="coupon-price">¥50</div>
-              <div class="coupon-unit">满500可用</div>
-              <div class="coupon-threshold">无门槛</div>
-            </div>
-            <div class="coupon-right">
-              <div class="coupon-name">满500减50<span class="coupon-tag tag-brand">品牌券</span></div>
-              <div class="coupon-scope">适用范围：全场商品</div>
-              <div class="coupon-valid">有效期至：2026-06-30（还剩15天）</div>
-              <div class="coupon-action"><button class="btn-claim" onclick="claimCoupon(this)">立即领取</button></div>
-            </div>
-          </div>
-
-          <div class="coupon-card">
-            <div class="coupon-left">
-              <div class="coupon-price">¥20</div>
-              <div class="coupon-unit">满200可用</div>
-              <div class="coupon-threshold">无门槛</div>
-            </div>
-            <div class="coupon-right">
-              <div class="coupon-name">满200减20 <span class="coupon-tag tag-new">新客专享</span></div>
               <div class="coupon-scope">适用范围：全场商品</div>
               <div class="coupon-valid">有效期至：2026-06-30</div>
               <div class="coupon-action"><button class="btn-gouse" onclick="location.href='v2.0-WX-11优惠券去使用商品列表.html'">去使用 →</button></div>
@@ -416,24 +402,38 @@
         </div>
       </div>
 
-    <!-- 底部Tab -->
+      <!-- 全部 Tab -->
+      <div class="tab-content" data-tab="all">
+        <div class="summary-bar">共 3 张优惠券</div>
+        <div class="coupon-list">
+          <div class="coupon-card">
+            <div class="coupon-left"><div class="coupon-price">¥50</div><div class="coupon-unit">满500可用</div><div class="coupon-threshold">无门槛</div></div>
+            <div class="coupon-right">
+              <div class="coupon-name">满500减50<span class="coupon-tag tag-brand">品牌券</span></div>
+              <div class="coupon-scope">适用范围：全场商品</div>
+              <div class="coupon-valid">有效期至：2026-06-30</div>
+              <div class="coupon-action"><button class="btn-claim">立即领取</button></div>
+            </div>
+          </div>
+          <div class="coupon-card">
+            <div class="coupon-left"><div class="coupon-price">¥20</div><div class="coupon-unit">满200可用</div><div class="coupon-threshold">无门槛</div></div>
+            <div class="coupon-right">
+              <div class="coupon-name">满200减20 <span class="coupon-tag tag-new">新客专享</span></div>
+              <div class="coupon-scope">适用范围：全场商品</div>
+              <div class="coupon-valid">有效期至：2026-06-30</div>
+              <div class="coupon-action"><button class="btn-gouse">去使用 →</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
     <div class="tab-bar">
-      <div class="tab-bar-item">
-        <div class="tab-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="#999"><path d="M12 3L4 9V21H9V14H15V21H20V9L12 3Z"/></svg></div>
-        <span class="tab-text">首页</span>
-      </div>
-      <div class="tab-bar-item">
-        <div class="tab-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="#999"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg></div>
-        <span class="tab-text">分类</span>
-      </div>
-      <div class="tab-bar-item">
-        <div class="tab-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="#999"><path d="M7 18C5.9 18 5 18.9 5 20S5.9 22 7 22 9 21.1 9 20 8.1 18 7 18Z"/><path d="M17 18C15.9 18 15 18.9 15 20S15.9 22 17 22 19 21.1 19 20 18.1 18 17 18Z"/><path d="M5 4L7 14H17L19 6H6"/></svg></div>
-        <span class="tab-text">购物车</span>
-      </div>
-      <div class="tab-bar-item">
-        <div class="tab-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="#999"><circle cx="12" cy="8" r="4"/><path d="M12 14C8.7 14 6 16.2 6 19H18C18 16.2 15.3 14 12 14Z"/></svg></div>
-        <span class="tab-text">我的</span>
-      </div>
+      <div class="tab-bar-item"><div class="tab-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="#999"><path d="M12 3L4 9V21H9V14H15V21H20V9L12 3Z"/></svg></div><span class="tab-text">首页</span></div>
+      <div class="tab-bar-item"><div class="tab-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="#999"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg></div><span class="tab-text">分类</span></div>
+      <div class="tab-bar-item"><div class="tab-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="#999"><path d="M7 18C5.9 18 5 18.9 5 20S5.9 22 7 22 9 21.1 9 20 8.1 18 7 18Z"/><path d="M17 18C15.9 18 15 18.9 15 20S15.9 22 17 22 19 21.1 19 20 18.1 18 17 18Z"/><path d="M5 4L7 14H17L19 6H6"/></svg></div><span class="tab-text">购物车</span></div>
+      <div class="tab-bar-item"><div class="tab-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="#999"><circle cx="12" cy="8" r="4"/><path d="M12 14C8.7 14 6 16.2 6 19H18C18 16.2 15.3 14 12 14Z"/></svg></div><span class="tab-text">我的</span></div>
     </div>
 
   </div>
@@ -451,20 +451,51 @@
       });
     });
 
-    function claimCoupon(btn) {
-      // 点击"立即领取"→变"去使用 →"红色渐变可点击态+Toast（2026-08-17修正：此前错写成"已领取✓"绿色禁用态，跟PRD§11.6/§11.7以及商品详情页的实现不一致）
+    function toast(msg, ms) {
+      var t = document.createElement('div');
+      t.className = 'toast';
+      t.textContent = msg;
+      document.body.appendChild(t);
+      setTimeout(function() { t.remove(); }, ms || 2000);
+    }
+
+    function claimOk(btn) {
       btn.textContent = '去使用 →';
       btn.className = 'btn-gouse';
       btn.onclick = function() { location.href = 'v2.0-WX-11优惠券去使用商品列表.html'; };
-      // 显示成功Toast
-      var t = document.createElement('div');
-      t.className = 'toast';
-      t.textContent = '领取成功';
-      document.body.appendChild(t);
-      setTimeout(function() { t.remove(); }, 2000);
+      toast('领取成功');
     }
+    function claimLast(btn) {
+      // 并发抢最后 1 张：接口返回库存不足
+      btn.disabled = true;
+      toast('券已抢光', 1800);
+      setTimeout(function() {
+        btn.textContent = '已领完';
+        btn.className = 'btn-soldout';
+        btn.disabled = false;
+        btn.onclick = null;
+        document.getElementById('cardLast').classList.add('soldout');
+        document.getElementById('stockHint').style.display = 'none';
+        var tag = document.createElement('div');
+        tag.className = 'card-soldout';
+        tag.textContent = '已抢光';
+        document.getElementById('cardLast').appendChild(tag);
+      }, 700);
+    }
+    function resetDemo() {
+      var last = document.getElementById('cardLast');
+      var tag = last.querySelector('.card-soldout');
+      if (tag) tag.remove();
+      last.classList.remove('soldout');
+      document.getElementById('stockHint').style.display = '';
+      var btn = document.getElementById('btnLast');
+      btn.textContent = '立即领取';
+      btn.className = 'btn-claim';
+      btn.onclick = function() { claimLast(this); };
+      toast('已重置');
+    }
+
   </script>
-  </div>
 
 </body>
 </html>

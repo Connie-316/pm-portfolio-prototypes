@@ -1,7 +1,7 @@
 <!--
   优惠券模块 · 确认订单 · PC退款-未过期
   版本: v2.18 | 更新: 2026-06-22
-  关联PRD: §8.1退款退券规则
+  关联PRD: §4.6 退款退券规则（未过期退回）（PRD v2.0）
 -->
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -42,6 +42,15 @@
     .coupon-tip-fold.open .coupon-tip-arrow { transform: rotate(180deg); }
     .coupon-tip-content { display: none; padding: 0 16px 14px 44px; font-size: 13px; color: #666; line-height: 1.5; }
     .coupon-tip-fold.open .coupon-tip-content { display: block; }
+    .coupon-tip-header:hover { background: rgba(0,0,0,0.025); }
+    .coupon-tip-content strong { color: #333; font-weight: 600; }
+    /* 底部操作区 */
+    .refund-action-bar { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
+    .btn { display: inline-flex; align-items: center; height: 38px; padding: 0 20px; border-radius: 6px; font-size: 14px; font-weight: 500; text-decoration: none; border: 1px solid transparent; transition: all .15s; }
+    .btn-primary { background: linear-gradient(135deg, #3370FF, #2860E0); color: #fff; }
+    .btn-primary:hover { box-shadow: 0 4px 12px rgba(51,112,255,.32); }
+    .btn-ghost { background: #fff; border-color: #D9D9D9; color: #666; }
+    .btn-ghost:hover { border-color: #3370FF; color: #3370FF; }
     /* 价格明细 */
     .price-section { background: #fff; border-radius: 8px; padding: 20px 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
     .section-title { font-size: 16px; font-weight: 700; color: #333; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #F0F0F0; }
@@ -117,14 +126,17 @@
       </div>
     </div>
 
-    <!-- 优惠券退回提示（未过期退券） -->
-    <div class="coupon-return-tip">
-      <div class="icon-wrap">
-        <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+    <!-- 优惠券退回提示（未过期退券）- 折叠式，可点击展开/收起 -->
+    <div class="coupon-tip-fold open" id="couponTipFold">
+      <div class="coupon-tip-header" onclick="toggleCouponTip()">
+        <div class="coupon-tip-header-left">
+          <div class="coupon-tip-icon"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div>
+          <span class="coupon-tip-title">优惠券已退回账户</span>
+        </div>
+        <span class="coupon-tip-arrow">∨</span>
       </div>
-      <div class="text">
-        <div class="text-title">优惠券已退回</div>
-        <div class="text-desc">「满500减50」券已退回账户，有效期不变，可继续使用</div>
+      <div class="coupon-tip-content">
+        「满500减50」券已退回账户，<strong>有效期不变</strong>（至 2026-06-30），可继续使用。整单退款按实付金额退款，券面额不折现。
       </div>
     </div>
 
@@ -147,6 +159,19 @@
         <span class="price-value">¥950.00</span>
       </div>
     </div>
+
+    <!-- 底部操作区 -->
+    <div class="refund-action-bar">
+      <a class="btn btn-ghost" href="v2.0-PC-我的优惠券.html">返回优惠券列表</a>
+      <a class="btn btn-primary" href="v2.0-PC-领券中心.html">去领券中心</a>
+    </div>
   </div>
+
+  <script>
+    function toggleCouponTip() {
+      var f = document.getElementById('couponTipFold');
+      if (f) { f.classList.toggle('open'); }
+    }
+  </script>
 </body>
 </html>

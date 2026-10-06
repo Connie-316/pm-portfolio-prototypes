@@ -1,15 +1,17 @@
 <!--
-  优惠券模块 · 购物车 · 选券弹层（基准页：购物车无限时折扣商品）
+  优惠券模块 · 购物车 · 含限时折扣商品（变体）
   版本: v2.0 | 更新: 2026-10-06
-  关联PRD: §4.9 确认订单页选券逻辑（购物车自动选券）/ §4.5.3 限时折扣提示文案（PRD v2.0）
-  说明: 购物车含限时折扣商品时的变体见 v2.0-WX-08b购物车优惠券-含限时折扣.html
+  关联PRD: §4.5.2 限时折扣商品不可用优惠券 / §4.5.3 提示文案 / §4.9 自动选券（PRD v2.0）
+  说明: 基准页为 v2.0-WX-08购物车优惠券.html（购物车无限时折扣商品，券可用）；
+        本页为变体——购物车含 1 件限时折扣商品「精密导柱组件 标准型」，
+        按 PRD 整单不可用券：券行置灰、提示条常显、合计不含券抵扣。
 -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>工业品商城 - 购物车（优惠券）</title>
+  <title>工业品商城 - 购物车（含限时折扣商品）</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body {
@@ -144,6 +146,15 @@
       display: none;
     }
     .coupon-tip.show { display: block; }
+    /* ===== 变体：含限时折扣商品 ===== */
+    .promo-tag { font-size: 10px; color: #fff; background: linear-gradient(90deg, #FF6B35, #F02C2C); border-radius: 3px; padding: 1px 5px; margin-left: 6px; vertical-align: middle; font-weight: 500; }
+    .coupon-row.disabled { cursor: default; }
+    .coupon-discount.off { color: #999; font-weight: 500; font-size: 13px; }
+    .coupon-tip.flash { animation: tipFlash .8s ease; }
+    @keyframes tipFlash {
+      0%, 100% { background: #FFF2E8; }
+      35% { background: #FFDCC2; }
+    }
     .coupon-row-left { display: flex; align-items: center; gap: 8px; }
     .coupon-label { font-size: 14px; color: #333; }
     .coupon-discount { font-size: 14px; color: #F02C2C; }
@@ -398,7 +409,7 @@
             <div class="item-checkbox checked"></div>
             <div class="item-img"><img src="https://picsum.photos/100/100?random=22" alt=""></div>
             <div class="item-info">
-              <div class="item-name">精密导柱组件 标准型</div>
+              <div class="item-name">精密导柱组件 标准型<span class="promo-tag">⚡ 限时折扣</span></div>
               <div class="item-sku">规格: φ25×100</div>
               <div class="item-bottom"><span class="item-price">¥1580.00</span>
                 <div class="item-count"><span class="count-btn">-</span><span class="count-num">1</span><span class="count-btn">+</span></div>
@@ -408,20 +419,17 @@
         </div>
       </div>
 
-      <div class="coupon-row" onclick="toggleSheet()">
+      <!-- 限时折扣商品与优惠券互斥：券行置灰，点击仅高亮提示，不打开选券浮层 -->
+      <div class="coupon-row disabled" onclick="flashTip()">
         <div class="coupon-row-left">
           <span class="coupon-label">优惠券</span>
-          <span class="coupon-discount">-¥50.00</span>
-          <span class="type-badge"></span>
+          <span class="coupon-discount off">本单不可用</span>
         </div>
         <div class="coupon-row-right">
-          <span>选择</span><span>›</span>
+          <span>查看原因</span><span>›</span>
         </div>
       </div>
-      <!-- 2026-10-06 按 PRD v2.0 §4.5.3（购物车页提示）补充：购物车含限时折扣商品时应显示本提示
-           （加 class="show" 即可见），同时优惠券不可用。基准态（无限时折扣商品）默认隐藏；
-           可见态见变体页 v2.0-WX-08b购物车优惠券-含限时折扣.html -->
-      <div class="coupon-tip">⚠ 购物车包含限时折扣商品，不可使用优惠券</div>
+      <div class="coupon-tip show" id="couponTip">⚠ 购物车包含限时折扣商品，不可使用优惠券</div>
     </div>
 
     <!-- 底部结算栏 -->
@@ -430,7 +438,7 @@
       <span class="all-text">全选</span>
       <div class="footer-price">
         <div class="price-label">合计：</div>
-        <div class="price-value" id="totalValue">¥1937.00</div>
+        <div class="price-value" id="totalValue">¥1987.00</div>
       </div>
       <button class="settle-btn" onclick="location.href='v2.0-WX-10确认订单优惠券.html'">去结算</button>
     </div>
@@ -443,178 +451,15 @@
       <div class="tab-bar-item"><div class="tab-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="#999"><circle cx="12" cy="8" r="4"/><path d="M12 14C8.7 14 6 16.2 6 19H18C18 16.2 15.3 14 12 14Z"/></svg></div><span class="tab-text">我的</span></div>
     </div>
 
-    <!-- 优惠券浮层 -->
-    <div class="mask" onclick="toggleSheet()"></div>
-    <div class="coupon-sheet">
-      <div class="sheet-header">
-        <div class="sheet-title">选择优惠券</div>
-        <div class="sheet-sub" id="sheetSub">共 2 张可用</div>
-      </div>
-      <div class="sheet-tabs">
-        <div class="sheet-tab active" data-tab="available">可用</div>
-        <div class="sheet-tab" data-tab="unavailable">不可用</div>
-        <div class="sheet-tab" data-tab="all">全部</div>
-      </div>
-      <div class="sheet-content">
-        <div class="tab-sheet-content active" data-tab="available">
-          <div class="coupon-option">
-            <div class="coupon-radio selected"></div>
-            <div class="coupon-option-info">
-              <div class="coupon-option-name">🎫 满500减50</div>
-              <div class="coupon-option-condition">满500可用</div>
-              <div class="coupon-option-reason" style="display:none;"></div>
-            </div>
-            <div class="coupon-option-right">
-              <div class="coupon-option-price">-¥50.00</div>
-            </div>
-          </div>
-          <div class="coupon-option disabled">
-            <div class="coupon-radio"></div>
-            <div class="coupon-option-info">
-              <div class="coupon-option-name">🎫 满300减30</div>
-              <div class="coupon-option-condition">满300可用</div>
-              <div class="coupon-option-reason" style="display:none;"></div>
-            </div>
-            <div class="coupon-option-right">
-              <div class="coupon-option-price">-¥30.00</div>
-            </div>
-          </div>
-        </div>
-        <div class="tab-sheet-content" data-tab="unavailable">
-          <div class="coupon-option disabled">
-            <div class="coupon-radio"></div>
-            <div class="coupon-option-info">
-              <div class="coupon-option-name">🎫 满200减20</div>
-              <div class="coupon-option-condition">满200可用</div>
-              <div class="coupon-option-reason">⚠ 金额不足</div>
-            </div>
-            <div class="coupon-option-right">
-              <div class="coupon-option-price">-¥20.00</div>
-            </div>
-          </div>
-        </div>
-        <div class="tab-sheet-content" data-tab="all">
-          <div class="coupon-option">
-            <div class="coupon-radio selected"></div>
-            <div class="coupon-option-info">
-              <div class="coupon-option-name">🎫 满500减50</div>
-              <div class="coupon-option-condition">满500可用</div>
-              <div class="coupon-option-reason" style="display:none;"></div>
-            </div>
-            <div class="coupon-option-right">
-              <div class="coupon-option-price">-¥50.00</div>
-            </div>
-          </div>
-          <div class="coupon-option disabled">
-            <div class="coupon-radio"></div>
-            <div class="coupon-option-info">
-              <div class="coupon-option-name">🎫 满300减30</div>
-              <div class="coupon-option-condition">满300可用</div>
-              <div class="coupon-option-reason" style="display:none;"></div>
-            </div>
-            <div class="coupon-option-right">
-              <div class="coupon-option-price">-¥30.00</div>
-            </div>
-          </div>
-          <div class="coupon-option disabled">
-            <div class="coupon-radio"></div>
-            <div class="coupon-option-info">
-              <div class="coupon-option-name">🎫 满200减20</div>
-              <div class="coupon-option-condition">满200可用</div>
-              <div class="coupon-option-reason">⚠ 金额不足</div>
-            </div>
-            <div class="coupon-option-right">
-              <div class="coupon-option-price">-¥20.00</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="sheet-footer">
-        <button class="btn-confirm" id="confirmBtn">确定（已选满500减50）</button>
-      </div>
-    </div>
-
-  <script>
-    var couponData = {
-      standard: {
-        available: [
-          { name: '满500减50', price: '-¥50.00', condition: '满500可用', reason: '', disabled: false },
-          { name: '满300减30', price: '-¥30.00', condition: '满300可用', reason: '', disabled: false }
-        ],
-        unavailable: [
-          { name: '满200减20', price: '-¥20.00', condition: '满200可用', reason: '金额不足', disabled: true }
-        ],
-        selected: 0
-      },
-      casting: {
-        available: [
-          { name: '满500减50', price: '-¥50.00', condition: '满500可用', reason: '', disabled: false }
-        ],
-        unavailable: [],
-        selected: 0
-      }
-    };
-    var currentSettleType = 'standard';
-
-    function toggleSheet() {
-      var sheet = document.querySelector('.coupon-sheet');
-      var mask = document.querySelector('.mask');
-      sheet.classList.toggle('show');
-      mask.classList.toggle('show');
-      reloadAvailableTab();
+    <script>
+    // 限时折扣商品与优惠券互斥（PRD §4.5.2）：不提供选券浮层，点击券行只高亮提示
+    function flashTip() {
+      var tip = document.getElementById('couponTip');
+      if (!tip) { return; }
+      tip.classList.remove('flash');
+      void tip.offsetWidth;          // 重置动画
+      tip.classList.add('flash');
     }
-
-    function reloadAvailableTab() {
-      var data = couponData[currentSettleType];
-      var availTab = document.querySelector('.tab-sheet-content[data-tab="available"]');
-      var items = availTab.querySelectorAll('.coupon-option');
-      items.forEach(function(item, i) {
-        var d = data.available[i];
-        if (!d) return;
-        item.className = d.disabled ? 'coupon-option disabled' : 'coupon-option';
-        item.querySelector('.coupon-option-name').textContent = '🎫 ' + d.name;
-        item.querySelector('.coupon-option-price').textContent = d.price;
-        item.querySelector('.coupon-option-condition').textContent = d.condition;
-        var reasonEl = item.querySelector('.coupon-option-reason');
-        if (d.reason) {
-          reasonEl.textContent = '⚠ ' + d.reason;
-          reasonEl.style.display = 'block';
-        } else if (reasonEl) {
-          reasonEl.style.display = 'none';
-        }
-        var radio = item.querySelector('.coupon-radio');
-        radio.className = i === data.selected ? 'coupon-radio selected' : 'coupon-radio';
-      });
-      // 更新标题
-      var availCount = data.available.filter(function(c) { return !c.disabled; }).length;
-      document.getElementById('sheetSub').textContent = '共 ' + availCount + ' 张可用';
-      var selectedData = data.available[data.selected];
-      document.getElementById('confirmBtn').textContent = '确定（已选' + selectedData.name + '）';
-    }
-
-    // Tab切换 + 同步标题+按钮
-    document.querySelectorAll('.sheet-tab').forEach(function(tab) {
-      tab.addEventListener('click', function() {
-        document.querySelectorAll('.sheet-tab').forEach(function(t) { t.classList.remove('active'); });
-        this.classList.add('active');
-        var target = this.dataset.tab;
-        document.querySelectorAll('.tab-sheet-content').forEach(function(c) {
-          c.classList.remove('active');
-          if (c.dataset.tab === target) { c.classList.add('active'); }
-        });
-        var titles = { all: '共 3 张', available: '共 2 张可用', unavailable: '1 张不可用' };
-        document.getElementById('sheetSub').textContent = titles[target] || '';
-        var confirmBtn = document.getElementById('confirmBtn');
-        var data = couponData[currentSettleType];
-        if (target === 'unavailable') {
-          confirmBtn.textContent = '不可用优惠券';
-        } else if (target === 'all') {
-          confirmBtn.textContent = '确定';
-        } else {
-          confirmBtn.textContent = '确定（已选' + data.available[data.selected].name + '）';
-        }
-      });
-    });
   </script>
   </div>
 </body>

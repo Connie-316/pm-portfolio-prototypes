@@ -1,7 +1,7 @@
 <!--
   优惠券模块 · 确认订单 · PC单商品场景
   版本: v2.18 | 更新: 2026-06-22
-  关联PRD: §12.4单商品确认订单场景
+  关联PRD: §4.9 确认订单页选券逻辑（单商品）（PRD v2.0）
 -->
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -143,7 +143,7 @@
         <div class="order-item">
           <div class="order-item-img"><img src="https://picsum.photos/100/100?random=30" alt=""></div>
           <div class="order-item-info">
-            <div class="order-item-name">工业品商城刀入子 CCAE-JCD-D10-L16-PC2-W2</div>
+            <div class="order-item-name">刀入子 CCAE-JCD-D10-L16-PC2-W2</div>
             <div class="order-item-sku">规格: CCAE-JCD-D10-L16-PC2-W2</div>
             <div class="order-item-bottom"><span class="order-item-price">¥600.00</span><span class="order-item-count">×1</span></div>
           </div>
@@ -157,6 +157,9 @@
         </div>
         <div class="coupon-right">已选择1张 ›</div>
       </div>
+      <!-- 2026-10-06 按 PRD v2.0 §4.5.3 补充：购物车含限时折扣商品时应显示本提示
+           （加 class="show" 即可见）。本页 demo 无限时折扣商品，故默认隐藏 -->
+      <div class="coupon-tip">⚠ 购物车包含限时折扣商品，不可使用优惠券</div>
 
       <div class="remark-card">
         <span class="remark-label">备注</span>
@@ -293,54 +296,9 @@
       });
     });
   
-    var ;
-    var couponData = {
-      standard: { available: [
-        { name: '满500减50', price: '-50', condition: '满500可用', reason: '', disabled: false },
-        { name: '满200减20', price: '-20', condition: '满200可用', reason: '', disabled: false },
-        { name: '限时8折券', price: '-0', condition: '需满300', reason: '金额不足（需满300）', disabled: true }
-      ], selected: 0 },
-      casting: { available: [
-        { name: '满200减20', price: '-20', condition: '满200可用', reason: '', disabled: false },
-        { name: '满300减30', price: '-30', condition: '满300可用', reason: '', disabled: false }
-      ], selected: 1 }
-    };);
-      el.classList.add('active');
-      currentSettleType = ;
-      var tip = document.querySelector('.type-tip');
-      if (tip) tip.textContent = '仅可结算同类型商品，当前为' + (currentSettleType === 'standard' ? '');
-      var badge = document.querySelector('.type-badge');
-      if (badge) badge.textContent = currentSettleType === 'standard' ? '';
-      reloadAvailableTab();
-    }
-    function reloadAvailableTab() {
-      var data = couponData[currentSettleType];
-      var availTab = document.querySelector('.tab-modal-content[data-tab="available"]');
-      if (!availTab) return;
-      var items = availTab.querySelectorAll('.modal-coupon-item');
-      items.forEach(function(item, i) {
-        var d = data.available[i];
-        if (!d) return;
-        item.className = d.disabled ? 'modal-coupon-item disabled' : 'modal-coupon-item';
-        var nameEl = item.querySelector('.modal-coupon-name');
-        if (nameEl) nameEl.textContent = '🎫 ' + d.name;
-        var priceEl = item.querySelector('.modal-coupon-price');
-        if (priceEl) priceEl.textContent = '-' + d.price;
-        var condEl = item.querySelector('.modal-coupon-condition');
-        if (condEl) condEl.textContent = d.condition;
-        var reasonEl = item.querySelector('.modal-coupon-reason');
-        if (d.reason) { reasonEl.textContent = '⚠ ' + d.reason; reasonEl.style.display = 'block'; }
-        else if (reasonEl) { reasonEl.style.display = 'none'; }
-        var radio = item.querySelector('.modal-coupon-radio');
-        if (radio) radio.className = i === data.selected ? 'modal-coupon-radio selected' : 'modal-coupon-radio';
-      });
-      var availCount = data.available.filter(function(c) { return !c.disabled; }).length;
-      var typeLabel = currentSettleType === 'standard' ? '';
-      var subEl = document.getElementById('modalSub');
-      if (subEl) subEl.textContent = '共 ' + availCount + ' 张可用（' + typeLabel + '）';
-      var btnEl = document.getElementById('modalConfirmBtn');
-      if (btnEl) btnEl.textContent = '确定（已选' + data.available[data.selected].name + '）';
-    }
+    // 2026-10-06 修复：原脚本存在 `var ;`、`};);` 等语法错误，导致整个 <script> 块解析失败、
+    // 选券弹层点击无响应。此处移除失效的 couponData / reloadAvailableTab（其逻辑会覆盖静态
+    // 标记里的「¥」与「新客专享」等文案，反而更差），仅保留弹层开关与选择逻辑。
   </script>
 
 </html>

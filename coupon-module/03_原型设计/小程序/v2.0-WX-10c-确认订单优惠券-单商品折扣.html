@@ -1,7 +1,7 @@
 <!--
   优惠券模块 · 确认订单 · 单商品折扣场景
   版本: v2.18 | 更新: 2026-06-22
-  关联PRD: §12.4单商品折扣券场景
+  关联PRD: §4.9 确认订单页选券逻辑（单商品·折扣券）（PRD v2.0）
 -->
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -170,7 +170,7 @@
       <div class="order-section">
         <div class="order-shop-header">
           <div class="order-shop-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div>
-          <div class="order-shop-name">工业品商城模具钢专营店</div>
+          <div class="order-shop-name">恒锐模具钢专营店</div>
         </div>
         <div class="order-item">
           <div class="order-item-img"><img src="https://picsum.photos/100/100?random=40" alt=""></div>
@@ -205,7 +205,8 @@
           </div>
           <div class="coupon-row-right"><span>已选择1张 ›</span></div>
         </div>
-        <div class="coupon-tip" id="couponTip"></div>
+        <!-- 2026-10-06 按 PRD v2.0 §4.5.3 统一：本页 demo 购物车不含限时折扣商品，故默认隐藏（class="show" 时可见） -->
+        <div class="coupon-tip">⚠ 购物车包含限时折扣商品，不可使用优惠券</div>
       </div>
 
       <div class="remark-section">

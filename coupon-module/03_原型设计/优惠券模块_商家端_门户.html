@@ -247,7 +247,7 @@
 
       <!-- 小程序原型 -->
       <div class="sidebar-section" data-panel="mini">
-        <div class="sidebar-header">📱 小程序原型 · 13个页面</div>
+        <div class="sidebar-header">📱 小程序原型 · 18个页面</div>
         <div class="sidebar-item active" data-file="小程序/v2.0-WX-06领券中心.html" data-title="领券中心">
           领券中心 <span class="badge done">✅</span>
         </div>
@@ -256,6 +256,9 @@
         </div>
         <div class="sidebar-item" data-file="小程序/v2.0-WX-08购物车优惠券.html" data-title="购物车优惠券">
           购物车优惠券浮层 <span class="badge done">✅</span>
+        </div>
+        <div class="sidebar-item" data-file="小程序/v2.0-WX-08b购物车优惠券-含限时折扣.html" data-title="购物车-含限时折扣">
+          购物车-含限时折扣（券不可用） <span class="badge new">🆕</span>
         </div>
         <div class="sidebar-item" data-file="小程序/v2.0-WX-09商品详情优惠券.html" data-title="商品详情领券">
           商品详情领券区 <span class="badge done">✅</span>
@@ -286,6 +289,18 @@
         </div>
         <div class="sidebar-item" data-file="小程序/v2.0-WX-10h-确认订单优惠券-全部退款-已使用.html" data-title="确认订单-全部退款已使用">
           退款-已使用 <span class="badge done">✅</span>
+        </div>
+        <div class="sidebar-item" data-file="小程序/v2.0-WX-10i-确认订单优惠券-积分不可叠加.html" data-title="确认订单-积分不可叠加">
+          确认订单-积分不可叠加 <span class="badge new">🆕</span>
+        </div>
+        <div class="sidebar-item" data-file="小程序/v2.0-WX-12a领券中心-券已抢光.html" data-title="领券-券已抢光">
+          领券-券已抢光（异常态） <span class="badge new">🆕</span>
+        </div>
+        <div class="sidebar-item" data-file="小程序/v2.0-WX-12b领券中心-已达限领.html" data-title="领券-已达限领">
+          领券-已达限领（边界态） <span class="badge new">🆕</span>
+        </div>
+        <div class="sidebar-item" data-file="小程序/v2.0-WX-12c领券中心-网络异常.html" data-title="领券-网络异常">
+          领券-网络异常（异常态） <span class="badge new">🆕</span>
         </div>
       </div>
 
@@ -358,10 +373,10 @@
     <!-- 右侧信息面板 -->
     <div class="info-panel">
       <div class="status-grid">
-        <div class="status-card"><div class="num">13</div><div class="label">小程序</div></div>
+        <div class="status-card"><div class="num">18</div><div class="label">小程序</div></div>
         <div class="status-card"><div class="num">10</div><div class="label">PC端</div></div>
         <div class="status-card"><div class="num">6</div><div class="label">商家后台</div></div>
-        <div class="status-card"><div class="num">24</div><div class="label">原型总数</div></div>
+        <div class="status-card"><div class="num">29</div><div class="label">原型总数</div></div>
       </div>
 
       <div class="info-section">
@@ -373,10 +388,10 @@
 
       <div class="info-section">
         <div class="info-section-title">PRD规则关联</div>
-        <a class="info-link" href="../02_PRD/优惠券模块PRD_v1.5.md#发放方式" target="_blank">📄 §5 发放方式</a>
-        <a class="info-link" href="../02_PRD/优惠券模块PRD_v1.5.md#状态显示逻辑" target="_blank">📄 §11 状态显示逻辑</a>
-        <a class="info-link" href="../02_PRD/优惠券模块PRD_v1.5.md#确认订单选券逻辑" target="_blank">📄 §12 确认订单选券逻辑</a>
-        <a class="info-link" href="../02_PRD/优惠券模块PRD_v1.5.md#商家端功能" target="_blank">📄 §13 商家端功能</a>
+        <a class="info-link" href="javascript:void(0)" onclick="openPrdSection('4.3')" title="打开 PRD v2.0 并定位到该小节">📄 §4.3 发放方式</a>
+        <a class="info-link" href="javascript:void(0)" onclick="openPrdSection('4.8')" title="打开 PRD v2.0 并定位到该小节">📄 §4.8 券状态显示逻辑</a>
+        <a class="info-link" href="javascript:void(0)" onclick="openPrdSection('4.9')" title="打开 PRD v2.0 并定位到该小节">📄 §4.9 确认订单页选券逻辑</a>
+        <a class="info-link" href="javascript:void(0)" onclick="openPrdSection('4.10')" title="打开 PRD v2.0 并定位到该小节">📄 §4.10 商家端功能</a>
       </div>
 
       <div class="info-section">
@@ -403,8 +418,13 @@ var pageInfo = {
     '领券中心':    { tabs: '全部/可领取/已领取', btn: '立即领取/去使用（2026-08-17按PRD §11.6修正，此前误写"已领取✓"）', type: '满减/折扣' },
     '我的优惠券':   { tabs: '可用/不可用/全部（2026-08-17按PRD §11.4修正，此前误写"全部/待使用/已使用/已失效"）', btn: '去使用/已过期', type: '满减/折扣' },
     '购物车优惠券浮层': { tabs: '可用/不可用', btn: '确定', type: '仅满减' },
+    '购物车-含限时折扣': { tabs: '—', btn: '本单不可用（券行置灰）', type: '满减' },
     '商品详情领券区': { tabs: '展开/收起', btn: '立即领取/去使用（2026-08-17修正，同上）', type: '品牌/新客' },
-    '确认订单选券': { tabs: '可用/不可用', btn: '确定', type: '满减' }
+    '确认订单选券': { tabs: '可用/不可用', btn: '确定', type: '满减' },
+    '确认订单-积分不可叠加': { tabs: '—', btn: '提交订单（积分开关禁用）', type: '满减' },
+    '领券-券已抢光': { tabs: '全部/可领取/已领取', btn: '已抢光（禁用）', type: '满减/折扣' },
+    '领券-已达限领': { tabs: '全部/可领取/已领取', btn: '去使用 / 已达限领（禁用）', type: '满减/折扣' },
+    '领券-网络异常': { tabs: '全部/可领取/已领取', btn: '重试', type: '满减/折扣' }
   },
   pc: {
     '领券中心':      { tabs: '全部/可领取/已领取', btn: '立即领取/去使用（2026-08-17修正）', type: '满减/折扣' },
@@ -478,6 +498,7 @@ var PRD_DOCS = {
 var prdDoc = 'prd';
 var prdLoaded = {};
 var prdReady = false;
+var pendingPrdAnchor = null;
 
 var PRD_CSS = '<style>' +
   '* { box-sizing: border-box; }' +
@@ -511,12 +532,28 @@ var PRD_CSS = '<style>' +
 function prdSlug(i) { return 'prd-sec-' + i; }
 
 function buildPrdDoc(md) {
-  var idx = 0;
-  var body = md.replace(/^## (.+)$/gm, function(m, t) {
-    return '<h2 id="' + prdSlug(idx++) + '">' + t + '</h2>';
+  var idx = 0, h3n = 0, map = {};
+  function remember(title, id) {
+    title = title.trim();
+    if (!(title in map)) { map[title] = id; }
+    var num = title.match(/^(\d+(?:\.\d+)*)/);
+    if (num && !(num[1] in map)) { map[num[1]] = id; }
+  }
+  var body = md.replace(/^(##|###) (.+)$/gm, function(m, lv, t) {
+    if (lv === '##') {
+      var id = prdSlug(idx++);
+      remember(t, id);
+      return '<h2 id="' + id + '">' + t.trim() + '</h2>';
+    }
+    var id3 = 'prd-h3-' + (h3n++);
+    remember(t, id3);
+    return '<h3 id="' + id3 + '">' + t.trim() + '</h3>';
   });
-  return '<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">' + PRD_CSS +
-         '</head><body><div class="prd-content">' + marked.parse(body) + '</div></body></html>';
+  return {
+    html: '<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">' + PRD_CSS +
+          '</head><body><div class="prd-content">' + marked.parse(body) + '</div></body></html>',
+    map: map
+  };
 }
 
 // 首次进入 PRD 面板时初始化：拉取 Markdown → 生成左侧章节导航 → 渲染全文
@@ -571,7 +608,8 @@ function loadPrdDoc(key) {
                    '" data-prd-anchor="' + prdSlug(i) + '" data-prd-title="' + title.replace(/"/g, '&quot;') +
                    '">' + title + '</div>';
       });
-      prdLoaded[key] = { navHtml: navHtml, docHtml: buildPrdDoc(md), count: heads.length };
+      var built = buildPrdDoc(md);
+      prdLoaded[key] = { navHtml: navHtml, docHtml: built.html, anchorMap: built.map, count: heads.length };
       items.innerHTML = navHtml;
       bindPrdNav();
       document.getElementById('prdNavHeader').textContent =
@@ -626,6 +664,44 @@ function wirePrdScrollSpy() {
   }
   win.addEventListener('scroll', sync, { passive: true });
   sync();
+  consumePendingPrdAnchor(doc);
+}
+
+// 消费「PRD规则关联」点击后待跳转的小节
+function consumePendingPrdAnchor(doc) {
+  if (!pendingPrdAnchor) { return; }
+  var t = pendingPrdAnchor; pendingPrdAnchor = null;
+  var a = prdAnchorOf(t);
+  var el = a && doc.getElementById(a);
+  if (el) { setTimeout(function() { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80); }
+}
+
+// 按小节号/标题查锚点 id
+function prdAnchorOf(title) {
+  var d = prdLoaded['prd'];
+  if (!d || !d.anchorMap) { return null; }
+  var map = d.anchorMap;
+  if (map[title]) { return map[title]; }
+  var num = String(title).match(/^(\d+(?:\.\d+)*)/);
+  if (num && map[num[1]]) { return map[num[1]]; }
+  for (var k in map) { if (k.indexOf(title) === 0) { return map[k]; } }
+  return null;
+}
+
+// 「PRD规则关联」入口：切到 PRD 面板 → 定位到指定小节
+function openPrdSection(title) {
+  var tab = document.querySelector('.top-tab[data-panel="prd"]');
+  if (tab) { tab.click(); }
+  if (prdDoc !== 'prd') { switchPrdDoc('prd'); }
+  ensurePrd();
+  var a = prdAnchorOf(title);
+  var frame = document.getElementById('contentFrame');
+  var doc = frame.contentDocument;
+  if (a && doc && doc.getElementById(a)) {
+    doc.getElementById(a).scrollIntoView({ behavior: 'smooth', block: 'start' });
+    return;
+  }
+  pendingPrdAnchor = title;
 }
 
 // ===== 更新信息面板 =====

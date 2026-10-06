@@ -1,7 +1,7 @@
 <!--
   优惠券模块 · 确认订单 · PC部分退款
   版本: v2.18 | 更新: 2026-06-22
-  关联PRD: §8.2部分退款规则
+  关联PRD: §4.6 退款退券规则（部分退款按分摊不追溯）（PRD v2.0）
 -->
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -38,13 +38,27 @@
     .refund-info-label { color: #666; }
     .refund-info-value { color: #333; font-weight: 500; }
 
-    /* 优惠券不追溯提示 */
-    .coupon-note-tip { background: #FFF2E8; border: 1px solid #FFBB8F; border-radius: 8px; padding: 16px 20px; margin: 0 0 20px; display: flex; align-items: flex-start; gap: 12px; }
-    .coupon-note-tip .icon-wrap { width: 28px; height: 28px; background: #FF6B35; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .coupon-note-tip .icon-wrap svg { width: 16px; height: 16px; stroke: #fff; fill: none; }
-    .coupon-note-tip .text { flex: 1; }
-    .coupon-note-tip .text-title { font-size: 14px; font-weight: 600; color: #FF6B35; margin-bottom: 4px; }
-    .coupon-note-tip .text-desc { font-size: 13px; color: #666; line-height: 1.5; }
+    /* 优惠券提示-折叠式 */
+    .coupon-tip-fold { background: #FFF2E8; border: 1px solid #FFBB8F; border-radius: 6px; margin-bottom: 20px; overflow: hidden; }
+    .coupon-tip-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; cursor: pointer; }
+    .coupon-tip-header-left { display: flex; align-items: center; gap: 10px; }
+    .coupon-tip-icon { width: 18px; height: 18px; background: #FF6B35; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .coupon-tip-icon svg { width: 11px; height: 11px; stroke: #fff; fill: none; }
+    .coupon-tip-title { font-size: 13px; color: #FF6B35; font-weight: 500; }
+    .coupon-tip-arrow { font-size: 13px; color: #999; transition: transform 0.2s; }
+    .coupon-tip-fold.open .coupon-tip-arrow { transform: rotate(180deg); }
+    .coupon-tip-content { display: none; padding: 0 16px 14px 44px; font-size: 13px; color: #666; line-height: 1.5; }
+    .coupon-tip-fold.open .coupon-tip-content { display: block; }
+    .coupon-tip-header:hover { background: rgba(0,0,0,0.025); }
+    .coupon-tip-content strong { color: #333; font-weight: 600; }
+    /* 底部操作区 */
+    .refund-action-bar { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
+    .btn { display: inline-flex; align-items: center; height: 38px; padding: 0 20px; border-radius: 6px; font-size: 14px; font-weight: 500; text-decoration: none; border: 1px solid transparent; transition: all .15s; }
+    .btn-primary { background: linear-gradient(135deg, #3370FF, #2860E0); color: #fff; }
+    .btn-primary:hover { box-shadow: 0 4px 12px rgba(51,112,255,.32); }
+    .btn-ghost { background: #fff; border-color: #D9D9D9; color: #666; }
+    .btn-ghost:hover { border-color: #3370FF; color: #3370FF; }
+
 
     /* 优惠券仍可用提示 */
     .coupon-remain-card { background: #F6FFED; border: 1px solid #B7EB8F; border-radius: 8px; padding: 16px 20px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; }
@@ -148,14 +162,17 @@
       </div>
     </div>
 
-    <!-- 优惠券不追溯提示 -->
-    <div class="coupon-note-tip">
-      <div class="icon-wrap">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+    <!-- 优惠券不追溯提示 - 折叠式，可点击展开/收起 -->
+    <div class="coupon-tip-fold open" id="couponTipFold">
+      <div class="coupon-tip-header" onclick="toggleCouponTip()">
+        <div class="coupon-tip-header-left">
+          <div class="coupon-tip-icon"><svg viewBox="0 0 24 24"><path d="M12 8v4M12 16h.01"/></svg></div>
+          <span class="coupon-tip-title">优惠券已使用部分不追溯</span>
+        </div>
+        <span class="coupon-tip-arrow">∨</span>
       </div>
-      <div class="text">
-        <div class="text-title">优惠券已使用部分不追溯</div>
-        <div class="text-desc">退款商品分摊的优惠金额不予退还，剩余商品继续使用原优惠券（优惠保持不变）</div>
+      <div class="coupon-tip-content">
+        <strong>已退款商品分摊的优惠金额不予退还</strong>（本单分摊 -¥30.00）。剩余商品继续使用原优惠券，券面额与优惠力度保持不变。
       </div>
     </div>
 
@@ -234,6 +251,19 @@
         <span class="price-value">¥570.00</span>
       </div>
     </div>
+
+    <!-- 底部操作区 -->
+    <div class="refund-action-bar">
+      <a class="btn btn-ghost" href="v2.0-PC-我的优惠券.html">返回优惠券列表</a>
+      <a class="btn btn-primary" href="v2.0-PC-领券中心.html">去领券中心</a>
+    </div>
   </div>
+
+  <script>
+    function toggleCouponTip() {
+      var f = document.getElementById('couponTipFold');
+      if (f) { f.classList.toggle('open'); }
+    }
+  </script>
 </body>
 </html>

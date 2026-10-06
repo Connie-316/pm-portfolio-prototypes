@@ -1,7 +1,7 @@
 <!--
-  优惠券模块 · 确认订单 · 单商品场景
-  版本: v2.18 | 更新: 2026-06-22
-  关联PRD: §4.9 确认订单页选券逻辑（单商品）（PRD v2.0）
+  优惠券模块 · 确认订单 · 积分不可叠加态
+  版本: v2.0 | 更新: 2026-10-06
+  关联PRD: §4.4.1 积分叠加, §4.9.5 确认订单优惠明细（PRD v2.0）
 -->
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -145,6 +145,28 @@
     .btn-confirm { width: 100%; padding: 14px; background: linear-gradient(90deg, #FF6B35, #F02C2C); color: #fff; border-radius: 12px; font-size: 16px; font-weight: 600; border: none; cursor: pointer; }
     .tab-sheet-content { display: none; }
     .tab-sheet-content.active { display: block; }
+
+    /* ===== 积分抵扣区（v2.0 新增：不支持叠加时置灰） ===== */
+    .points-section { background: #fff; padding: 14px 16px; margin-bottom: 10px; }
+    .points-row { display: flex; align-items: center; justify-content: space-between; }
+    .points-row-left { display: flex; flex-direction: column; gap: 3px; }
+    .points-label { font-size: 14px; color: #333; }
+    .points-sub { font-size: 11px; color: #999; }
+    .points-switch { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+    .points-switch input { width: 16px; height: 16px; }
+    .points-switch-text { font-size: 13px; color: #333; }
+    .points-section.off .points-label,
+    .points-section.off .points-sub,
+    .points-section.off .points-switch-text { color: #BFBFBF; }
+    .points-section.off .points-switch { cursor: not-allowed; }
+    .points-tip { display: none; margin-top: 10px; padding: 8px 10px;
+      background: #FFF2E8; border: 1px solid #FFE4CC; border-radius: 6px;
+      font-size: 11.5px; color: #FF6B35; }
+    .points-tip.show { display: block; }
+    .stack-tag { display: inline-block; font-size: 10px; padding: 1px 6px;
+      border-radius: 3px; margin-left: 6px; vertical-align: 1px; }
+    .stack-no { background: #FFF1F0; color: #F5222D; }
+    .stack-yes { background: #F0FFF0; color: #52C41A; }
   </style>
 </head>
 <body>
@@ -184,12 +206,31 @@
         <div class="coupon-row" onclick="toggleSheet()">
           <div class="coupon-row-left">
             <span class="coupon-label">优惠券</span>
-            <span class="coupon-discount">-¥50.00</span>
+            <span class="coupon-discount" id="couponDiscount">-¥50.00</span>
           </div>
-          <div class="coupon-row-right"><span>已选择1张 ›</span></div>
+          <div class="coupon-row-right"><span id="couponChosen">已选择1张 ›</span></div>
         </div>
         <!-- 2026-10-06 按 PRD v2.0 §4.5.3 统一：本页 demo 购物车不含限时折扣商品，故默认隐藏（class="show" 时可见） -->
         <div class="coupon-tip">⚠ 购物车包含限时折扣商品，不可使用优惠券</div>
+      </div>
+
+      <!-- 积分抵扣（v2.0：券不支持叠加时置灰不可点） -->
+      <div class="points-section off" id="pointsSection">
+        <div class="points-row">
+          <div class="points-row-left">
+            <span class="points-label">积分抵扣</span>
+            <span class="points-sub" id="pointsSub">可用 100 积分，可抵 ¥10.00</span>
+          </div>
+          <label class="points-switch">
+            <input type="checkbox" id="pointsSwitch" disabled>
+            <span class="points-switch-text" id="pointsSwitchText">使用积分抵扣</span>
+          </label>
+        </div>
+        <div class="points-tip show" id="pointsTip">⚠ 当前优惠券不支持积分叠加</div>
+      </div>
+
+      <div class="demo-note" style="margin:0 16px 10px;padding:9px 12px;border-radius:8px;background:#F0F6FF;border:1px solid #D6E4FF;font-size:11.5px;color:#3370FF;line-height:1.55;">
+        <b>演示</b>：当前券「满500减50」不支持积分叠加 → 勾选框置灰且不可点。点「优惠券」行换选「满200减20 新客专享」→ 勾选框恢复可用并重置为默认勾选，金额同步重算。
       </div>
 
       <div class="remark-section">
@@ -200,13 +241,14 @@
       <div class="price-section">
         <div class="price-row"><span class="price-label">商品金额</span><span class="price-value">¥600.00</span></div>
         <div class="price-row"><span class="price-label">运费</span><span class="price-value">¥0.00</span></div>
-        <div class="price-row discount"><span class="price-label">优惠券</span><span class="price-value">-¥50.00</span></div>
-        <div class="price-row total"><span class="price-label">应付金额</span><span class="price-value">¥550.00</span></div>
+        <div class="price-row discount"><span class="price-label">优惠券</span><span class="price-value" id="priceCoupon">-¥50.00</span></div>
+        <div class="price-row discount" id="pricePointsRow" style="display:none;"><span class="price-label">积分抵扣</span><span class="price-value" id="pricePoints">-¥10.00</span></div>
+        <div class="price-row total"><span class="price-label">应付金额</span><span class="price-value" id="priceTotal">¥550.00</span></div>
       </div>
     </div>
 
     <div class="submit-bar">
-      <div class="submit-price"><div class="submit-price-label">合计（不含运费）</div><div class="submit-price-value">¥550.00</div></div>
+      <div class="submit-price"><div class="submit-price-label">合计（不含运费）</div><div class="submit-price-value" id="submitPrice">¥550.00</div></div>
       <button class="submit-btn">提交订单</button>
     </div>
   </div>
@@ -228,7 +270,7 @@
         <div class="coupon-option" onclick="selectCoupon(this)">
           <div class="coupon-radio selected"></div>
           <div class="coupon-option-info">
-            <div class="coupon-option-name">🎫 满500减50</div>
+            <div class="coupon-option-name">🎫 满500减50<span class="stack-tag stack-no">不支持积分叠加</span></div>
             <div class="coupon-option-scope">全场商品 · 已领取</div>
             <div class="coupon-option-valid">有效期至：2026-06-30</div>
           </div>
@@ -237,7 +279,7 @@
         <div class="coupon-option" onclick="selectCoupon(this)">
           <div class="coupon-radio"></div>
           <div class="coupon-option-info">
-            <div class="coupon-option-name">🎫 满200减20 新客专享</div>
+            <div class="coupon-option-name">🎫 满200减20 新客专享<span class="stack-tag stack-yes">支持积分叠加</span></div>
             <div class="coupon-option-scope">全场商品 · 已领取</div>
             <div class="coupon-option-valid">有效期至：2026-06-30</div>
           </div>
@@ -265,7 +307,7 @@
         <div class="coupon-option" onclick="selectCoupon(this)">
           <div class="coupon-radio selected"></div>
           <div class="coupon-option-info">
-            <div class="coupon-option-name">🎫 满500减50</div>
+            <div class="coupon-option-name">🎫 满500减50<span class="stack-tag stack-no">不支持积分叠加</span></div>
             <div class="coupon-option-scope">全场商品 · 已领取</div>
             <div class="coupon-option-valid">有效期至：2026-06-30</div>
           </div>
@@ -274,7 +316,7 @@
         <div class="coupon-option" onclick="selectCoupon(this)">
           <div class="coupon-radio"></div>
           <div class="coupon-option-info">
-            <div class="coupon-option-name">🎫 满200减20 新客专享</div>
+            <div class="coupon-option-name">🎫 满200减20 新客专享<span class="stack-tag stack-yes">支持积分叠加</span></div>
             <div class="coupon-option-scope">全场商品 · 已领取</div>
             <div class="coupon-option-valid">有效期至：2026-06-30</div>
           </div>
@@ -298,19 +340,73 @@
   </div>
 
   <script>
+    var COUPON_RULES = {
+      '满500减50': { discount: 50, stackable: false },
+      '满200减20 新客专享': { discount: 20, stackable: true }
+    };
+    var currentCoupon = '满500减50';
+
     function toggleSheet() {
       var s = document.getElementById('couponSheet');
       var m = document.getElementById('mask');
-      s.classList.contains('show') ? (s.classList.remove('show'), m.classList.remove('show')) : (s.classList.add('show'), m.classList.add('show'));
+      if (s.classList.contains('show')) { s.classList.remove('show'); m.classList.remove('show'); }
+      else { s.classList.add('show'); m.classList.add('show'); }
     }
+
     function selectCoupon(el) {
       if (el.classList.contains('disabled')) return;
       document.querySelectorAll('.coupon-option .coupon-radio').forEach(function(r) { r.classList.remove('selected'); });
       el.querySelector('.coupon-radio').classList.add('selected');
-      var name = el.querySelector('.coupon-option-name').textContent.replace('🎫 ', '');
+      var name = el.querySelector('.coupon-option-name').textContent.replace('🎫 ', '').replace('不支持积分叠加', '').replace('支持积分叠加', '').trim();
+      currentCoupon = name;
       document.getElementById('confirmBtn').textContent = '确定（已选' + name + '）';
     }
-    function confirmCoupon() { toggleSheet(); }
+
+    // 换券后重新判定积分是否可叠加（PRD §4.4.1）
+    function applyCouponRules() {
+      var r = COUPON_RULES[currentCoupon] || { discount: 0, stackable: false };
+      var sec = document.getElementById('pointsSection');
+      var sw = document.getElementById('pointsSwitch');
+      var tip = document.getElementById('pointsTip');
+
+      if (r.stackable) {
+        // 新券支持叠加 → 勾选框恢复可用并重置为默认勾选
+        sec.classList.remove('off');
+        sw.disabled = false;
+        sw.checked = true;
+        tip.classList.remove('show');
+      } else {
+        sec.classList.add('off');
+        sw.disabled = true;
+        sw.checked = false;
+        tip.classList.add('show');
+      }
+      recalc();
+    }
+
+    function recalc() {
+      var r = COUPON_RULES[currentCoupon] || { discount: 0 };
+      var goods = 600, freight = 0;
+      var cdisc = r.discount || 0;
+      var pts = document.getElementById('pointsSwitch').checked ? 10 : 0;
+      var total = goods - cdisc - pts + freight;
+
+      document.getElementById('couponDiscount').textContent = '-¥' + cdisc.toFixed(2);
+      document.getElementById('couponChosen').textContent = '已选择1张 ›';
+      document.getElementById('priceCoupon').textContent = '-¥' + cdisc.toFixed(2);
+      document.getElementById('pricePointsRow').style.display = pts ? 'flex' : 'none';
+      document.getElementById('pricePoints').textContent = '-¥' + pts.toFixed(2);
+      document.getElementById('priceTotal').textContent = '¥' + total.toFixed(2);
+      document.getElementById('submitPrice').textContent = '¥' + total.toFixed(2);
+    }
+
+    function confirmCoupon() {
+      toggleSheet();
+      applyCouponRules();
+    }
+
+    document.getElementById('pointsSwitch').addEventListener('change', recalc);
+
     document.querySelectorAll('.sheet-tab').forEach(function(tab) {
       tab.addEventListener('click', function() {
         document.querySelectorAll('.sheet-tab').forEach(function(t) { t.classList.remove('active'); });
@@ -323,13 +419,12 @@
         var titles = { all: '共 3 张', available: '共 2 张可用', unavailable: '1 张不可用' };
         document.getElementById('sheetSub').textContent = titles[target] || '';
         var btn = document.getElementById('confirmBtn');
-        if (target === 'unavailable') {
-          btn.textContent = '不可用优惠券';
-        } else {
-          btn.textContent = '确定（已选满500减50）';
-        }
+        btn.textContent = (target === 'unavailable') ? '不可用优惠券' : ('确定（已选' + currentCoupon + '）');
       });
     });
+
+    // 初始态：默认选中「满500减50」，不支持积分叠加
+    applyCouponRules();
   </script>
 </body>
 </html>
