@@ -168,18 +168,18 @@
       <div class="refund-success">
         <div class="refund-icon"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div>
         <div class="refund-title">退款成功</div>
-        <div class="refund-amount">¥530.00</div>
+        <div class="refund-amount">¥950.00</div>
         <div class="refund-info">
           <div class="refund-info-row"><span class="refund-info-label">退款方式</span><span class="refund-info-value">退回原支付渠道</span></div>
           <div class="refund-info-row"><span class="refund-info-label">退款账户</span><span class="refund-info-value">微信支付（****9012）</span></div>
           <div class="refund-info-row"><span class="refund-info-label">预计到账</span><span class="refund-info-value">1-3个工作日</span></div>
-          <div class="refund-info-row"><span class="refund-info-label">订单编号</span><span class="refund-info-value">DD20260601002</span></div>
+          <div class="refund-info-row"><span class="refund-info-label">订单编号</span><span class="refund-info-value">DD20260528001</span></div>
           <div class="refund-info-row"><span class="refund-info-label">退款时间</span><span class="refund-info-value">2026-06-10 09:41</span></div>
         </div>
       </div>
 
       <!-- 已过期不退券提示 - 折叠式 -->
-      <div class="coupon-tip-fold" id="couponTipFold">
+      <div class="coupon-tip-fold open" id="couponTipFold">
         <div class="coupon-tip-header" onclick="toggleCouponTip()">
           <div class="coupon-tip-header-left">
             <div class="coupon-tip-icon"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></div>
@@ -188,7 +188,7 @@
           <span class="coupon-tip-arrow">∨</span>
         </div>
         <div class="coupon-tip-content">
-          您的「满300减30」券已过期（2026-05-31），过期优惠券退款时不予退回
+          您的「满500减50」券已过期（2026-05-31），过期优惠券退款时不予退回
         </div>
       </div>
       <script>function toggleCouponTip(){var f=document.getElementById('couponTipFold');f.classList.contains('open')?f.classList.remove('open'):f.classList.add('open');}</script>
@@ -197,26 +197,34 @@
       <div class="order-detail-section">
         <div class="order-detail-title">退款商品</div>
         <div class="order-item">
+          <div class="order-item-img"><img src="https://picsum.photos/100/100?random=21" alt=""></div>
+          <div class="order-item-info">
+            <div class="order-item-name">刀入子 CCAE-JCD-D10-L16-PC2-W2</div>
+            <div class="order-item-sku">规格: CCAE-JCD-D10-L16-PC2-W2</div>
+            <div class="order-item-bottom"><span class="order-item-price">¥600.00</span><span class="order-item-count">×1</span></div>
+          </div>
+        </div>
+        <div class="order-item">
           <div class="order-item-img"><img src="https://picsum.photos/100/100?random=22" alt=""></div>
           <div class="order-item-info">
             <div class="order-item-name">精密导柱组件 标准型</div>
             <div class="order-item-sku">规格: φ25×100</div>
-            <div class="order-item-bottom"><span class="order-item-price">¥560.00</span><span class="order-item-count">×1</span></div>
+            <div class="order-item-bottom"><span class="order-item-price">¥400.00</span><span class="order-item-count">×1</span></div>
           </div>
         </div>
       </div>
 
       <!-- 退款明细 -->
       <div class="price-section">
-        <div class="price-row"><span class="price-label">商品金额</span><span class="price-value">¥560.00</span></div>
-        <div class="price-row"><span class="price-label">优惠券</span><span class="price-value">-¥30.00（已过期，不退回）</span></div>
+        <div class="price-row"><span class="price-label">商品金额</span><span class="price-value">¥1000.00</span></div>
+        <div class="price-row discount"><span class="price-label">优惠券（已过期）</span><span class="price-value">-¥50.00（不退回）</span></div>
         <div class="price-row"><span class="price-label">运费</span><span class="price-value">¥0.00</span></div>
-        <div class="price-row total"><span class="price-label">实付金额</span><span class="price-value">¥530.00</span></div>
+        <div class="price-row total"><span class="price-label">实付金额</span><span class="price-value">¥950.00</span></div>
       </div>
     </div>
 
     <div class="submit-bar">
-      <div class="submit-price"><div class="submit-price-label">退还金额</div><div class="submit-price-value">¥530.00</div></div>
+      <div class="submit-price"><div class="submit-price-label">退还金额</div><div class="submit-price-value">¥950.00</div></div>
       <button class="submit-btn" onclick="location.href='v2.0-WX-07我的优惠券.html'">返回优惠券</button>
     </div>
   </div>

@@ -98,6 +98,7 @@
     .price-row.total { padding-top: 12px; margin-top: 12px; border-top: 1px solid #F0F0F0; font-weight: 600; }
     .price-row.total .price-label { color: #333; font-size: 15px; }
     .price-row.total .price-value { color: #F02C2C; font-size: 18px; }
+    .price-group-title { font-size: 13px; color: #999; font-weight: 500; margin: 16px 0 10px; padding-top: 14px; border-top: 1px dashed #F0F0F0; }
 
     /* 分隔线 */
     .divider { height: 20px; }
@@ -172,7 +173,7 @@
         <span class="coupon-tip-arrow">∨</span>
       </div>
       <div class="coupon-tip-content">
-        <strong>已退款商品分摊的优惠金额不予退还</strong>（本单分摊 -¥30.00）。剩余商品继续使用原优惠券，券面额与优惠力度保持不变。
+        <strong>已退款商品分摊的优惠金额不予退还</strong>（本单被退商品分摊 -¥30.00）。剩余商品（精密导柱组件 ¥400.00）继续使用原优惠券，券面额与优惠力度保持不变。
       </div>
     </div>
 
@@ -200,10 +201,10 @@
           <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L12 12"/></svg>
         </div>
         <div class="item-info">
-          <div class="item-name">刀入子 CCAE-JCD-D10<span class="item-refund-tag">已退款</span></div>
-          <div class="item-sku">规格： CCAE-JCD-D10</div>
+          <div class="item-name">刀入子 CCAE-JCD-D10-L16-PC2-W2<span class="item-refund-tag">已退款</span></div>
+          <div class="item-sku">规格： CCAE-JCD-D10-L16-PC2-W2</div>
           <div class="item-bottom">
-            <div class="item-price">¥570.00</div>
+            <div class="item-price">¥600.00</div>
             <div class="item-count">x1</div>
           </div>
         </div>
@@ -217,10 +218,10 @@
           <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L12 12"/></svg>
         </div>
         <div class="item-info">
-          <div class="item-name">精密导柱 CWPG25-400<span class="item-remaining"><svg viewBox="0 0 24 24" width="14" height="14" stroke="#52C41A" fill="none"><path d="M20 6L9 17l-5-5"/></svg>订单中</span></div>
-          <div class="item-sku">规格： CCAE-JCD-D10</div>
+          <div class="item-name">精密导柱组件 标准型<span class="item-remaining"><svg viewBox="0 0 24 24" width="14" height="14" stroke="#52C41A" fill="none"><path d="M20 6L9 17l-5-5"/></svg>订单中</span></div>
+          <div class="item-sku">规格： φ25×100</div>
           <div class="item-bottom">
-            <div class="item-price">¥1580.00</div>
+            <div class="item-price">¥400.00</div>
             <div class="item-count">x1</div>
           </div>
         </div>
@@ -230,25 +231,35 @@
     <!-- 价格明细 -->
     <div class="price-section">
       <div class="section-title">退款金额明细</div>
+      <div class="price-group-title" style="border-top:none;padding-top:0;margin-top:0;">原订单</div>
       <div class="price-row">
-        <span class="price-label">商品总价</span>
+        <span class="price-label">商品金额（刀入子 ¥600.00 + 精密导柱组件 ¥400.00）</span>
         <span class="price-value">¥1000.00</span>
       </div>
       <div class="price-row discount">
-        <span class="price-label">优惠券优惠</span>
+        <span class="price-label">优惠券优惠（满500减50）</span>
         <span class="price-value">-¥50.00</span>
-      </div>
-      <div class="price-row discount">
-        <span class="price-label">（已退款商品分摊优惠）</span>
-        <span class="price-value">-¥30.00</span>
       </div>
       <div class="price-row">
         <span class="price-label">运费</span>
         <span class="price-value">¥0.00</span>
       </div>
+      <div class="price-row">
+        <span class="price-label">原订单实付</span>
+        <span class="price-value">¥950.00</span>
+      </div>
+      <div class="price-group-title">本次退款（刀入子 CCAE-JCD-D10-L16-PC2-W2）</div>
+      <div class="price-row discount">
+        <span class="price-label">该商品分摊优惠（50 × 600 ÷ 1000）</span>
+        <span class="price-value">-¥30.00</span>
+      </div>
       <div class="price-row total">
-        <span class="price-label">实付金额（退款）</span>
+        <span class="price-label">本次退款金额</span>
         <span class="price-value">¥570.00</span>
+      </div>
+      <div class="price-row" style="margin-top:8px;">
+        <span class="price-label">剩余订单应付（精密导柱组件 ¥400.00 − 分摊 ¥20.00）</span>
+        <span class="price-value">¥380.00</span>
       </div>
     </div>
 
