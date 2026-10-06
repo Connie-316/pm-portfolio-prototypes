@@ -1,0 +1,346 @@
+<!--
+  优惠券模块 · 确认订单 · PC单商品场景
+  版本: v2.18 | 更新: 2026-06-22
+  关联PRD: §12.4单商品确认订单场景
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>工业品商城 - 确认订单（单商品）</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif; background: #F5F5F5; color: #333; min-height: 100vh; }
+    .top-header { background: #fff; border-bottom: 1px solid #E5E5E5; position: sticky; top: 0; z-index: 100; }
+    .header-main { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; padding: 0 20px; height: 64px; gap: 40px; }
+    .header-logo-img { width: 120px; height: 36px; background: linear-gradient(135deg, #3370FF, #2860E0); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 14px; }
+    .header-nav { display: flex; gap: 32px; flex: 1; }
+    .header-nav a { font-size: 14px; color: #666; text-decoration: none; }
+    .header-nav a:hover, .header-nav a.active { color: #3370FF; }
+    .header-user { display: flex; align-items: center; gap: 8px; }
+    .header-avatar { width: 32px; height: 32px; background: #E8F0FF; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .header-avatar svg { width: 18px; height: 18px; stroke: #3370FF; fill: none; }
+    .page-main { max-width: 1200px; margin: 0 auto; padding: 24px 20px; display: flex; gap: 20px; }
+    .order-area { flex: 1; }
+    .page-title { font-size: 20px; font-weight: 700; color: #333; margin-bottom: 20px; }
+    .address-card { background: #fff; border-radius: 8px; padding: 20px; margin-bottom: 16px; display: flex; align-items: center; gap: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); cursor: pointer; }
+    .address-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .address-icon { width: 40px; height: 40px; background: #E8F0FF; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .address-icon svg { width: 22px; height: 22px; stroke: #3370FF; fill: none; }
+    .address-info { flex: 1; }
+    .address-name { font-size: 15px; font-weight: 600; color: #333; margin-bottom: 6px; }
+    .address-detail { font-size: 13px; color: #666; line-height: 1.5; }
+    .address-arrow { font-size: 22px; color: #ccc; }
+    .order-card { background: #fff; border-radius: 8px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .order-shop-header { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #F0F0F0; }
+    .order-shop-icon { width: 24px; height: 24px; background: linear-gradient(135deg, #E8F0FF, #CCE0FF); border-radius: 4px; display: flex; align-items: center; justify-content: center; }
+    .order-shop-icon svg { width: 14px; height: 14px; stroke: #3370FF; fill: none; }
+    .order-shop-name { font-size: 14px; font-weight: 600; color: #333; flex: 1; }
+    .order-item { display: flex; gap: 16px; padding: 12px 0; border-bottom: 1px solid #F0F0F0; }
+    .order-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .order-item-img { width: 80px; height: 80px; background: linear-gradient(135deg, #E8F0FF, #D0E0FF); border-radius: 8px; flex-shrink: 0; }
+    .order-item-img img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
+    .order-item-info { flex: 1; }
+    .order-item-name { font-size: 14px; font-weight: 600; color: #333; margin-bottom: 6px; line-height: 1.4; }
+    .order-item-sku { font-size: 12px; color: #999; margin-bottom: 8px; }
+    .order-item-bottom { display: flex; justify-content: space-between; align-items: center; }
+    .order-item-price { font-size: 15px; font-weight: 600; color: #F02C2C; }
+    .order-item-count { font-size: 13px; color: #666; }
+    .coupon-card { background: #fff; border-radius: 8px; padding: 16px 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+    .coupon-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .coupon-left { display: flex; align-items: center; gap: 12px; }
+    .coupon-label { font-size: 15px; color: #333; }
+    .coupon-discount { font-size: 15px; color: #F02C2C; font-weight: 600; }
+    .coupon-right { font-size: 14px; color: #666; }
+    .coupon-tip { padding: 10px 16px; background: #FFF2E8; font-size: 12px; color: #FF6B35; border-radius: 0 0 8px 8px; margin-bottom: 16px; display: none; }
+    .coupon-tip.show { display: block; }
+    .remark-card { background: #fff; border-radius: 8px; padding: 16px 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; align-items: center; gap: 12px; }
+    .remark-label { font-size: 15px; color: #333; flex-shrink: 0; }
+    .remark-input { flex: 1; border: none; font-size: 14px; color: #666; background: transparent; outline: none; }
+    .remark-input::placeholder { color: #ccc; }
+    .summary-area { width: 300px; flex-shrink: 0; }
+    .summary-card { background: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); position: sticky; top: 88px; }
+    .summary-title { font-size: 16px; font-weight: 700; color: #333; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #F0F0F0; }
+    .summary-row { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 10px; }
+    .summary-label { color: #666; }
+    .summary-value { color: #333; }
+    .summary-row.discount .summary-value { color: #F02C2C; }
+    .summary-row.total { padding-top: 12px; margin-top: 12px; border-top: 1px solid #F0F0F0; font-weight: 600; }
+    .summary-row.total .summary-label { color: #333; font-size: 15px; }
+    .summary-row.total .summary-value { color: #F02C2C; font-size: 20px; }
+    .submit-btn { width: 100%; padding: 14px; background: linear-gradient(90deg, #FF6B35, #F02C2C); color: #fff; border-radius: 8px; font-size: 16px; font-weight: 600; border: none; cursor: pointer; margin-top: 16px; box-shadow: 0 3px 10px rgba(240,44,44,0.25); }
+
+    .modal-mask { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 999; }
+    .modal-mask.show { display: block; }
+    .coupon-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 560px; max-height: 80vh; background: #fff; border-radius: 12px; z-index: 1000; box-shadow: 0 8px 32px rgba(0,0,0,0.2); flex-direction: column; }
+    .coupon-modal.show { display: flex; }
+    .modal-header { padding: 20px 24px; border-bottom: 1px solid #F0F0F0; display: flex; justify-content: space-between; align-items: center; }
+    .modal-title { font-size: 16px; font-weight: 600; color: #333; }
+    .modal-close { font-size: 22px; color: #999; cursor: pointer; }
+    .modal-tabs { display: flex; border-bottom: 1px solid #F0F0F0; padding: 0 24px; }
+    .modal-tab { padding: 12px 16px; font-size: 14px; color: #666; cursor: pointer; position: relative; border: none; background: none; }
+    .modal-tab.active { color: #3370FF; font-weight: 600; }
+    .modal-tab.active::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: #3370FF; }
+    .modal-body { flex: 1; overflow-y: auto; padding: 16px 24px; }
+    .modal-coupon-item { display: flex; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1px solid #F0F0F0; cursor: pointer; }
+    .modal-coupon-item.disabled { opacity: 0.5; cursor: not-allowed; }
+    .modal-coupon-radio { width: 20px; height: 20px; border: 2px solid #ddd; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .modal-coupon-radio.selected { background: #3370FF; border-color: #3370FF; }
+    .modal-coupon-radio.selected::after { content: '✓'; color: #fff; font-size: 11px; }
+    .modal-coupon-info { flex: 1; }
+    .modal-coupon-name { font-size: 14px; font-weight: 600; color: #333; margin-bottom: 4px; }
+    .modal-coupon-scope { font-size: 12px; color: #666; margin-bottom: 2px; }
+    .modal-coupon-valid { font-size: 11px; color: #999; }
+    .modal-coupon-reason { font-size: 11px; color: #FF6B35; margin-top: 2px; }
+    .modal-coupon-right { text-align: right; }
+    .modal-coupon-price { font-size: 16px; font-weight: 700; color: #F02C2C; }
+    .modal-coupon-condition { font-size: 11px; color: #999; }
+    .modal-footer { padding: 16px 24px; border-top: 1px solid #F0F0F0; }
+    .btn-modal-confirm { width: 100%; padding: 12px; background: linear-gradient(90deg, #FF6B35, #F02C2C); color: #fff; border-radius: 8px; font-size: 15px; font-weight: 600; border: none; cursor: pointer; }
+    .tab-modal-content { display: none; }
+    .tab-modal-content.active { display: block; }
+
+
+    .type-badge { display: inline-block; font-size: 11px; padding: 2px 8px; background: #FFF2E8; color: #FF6B35; border-radius: 4px; margin-left: 8px; vertical-align: middle; }
+    .type-tip { font-size: 12px; color: #999; padding: 8px 16px; background: #FFF9F0; border-top: 1px solid #FFE4CC; }
+    .type-selector { display: flex; gap: 8px; justify-content: center; margin-top: 12px; }
+    .type-btn { padding: 6px 20px; border-radius: 16px; font-size: 13px; background: #F5F5F5; color: #666; cursor: pointer; border: 1px solid transparent; }
+    .type-btn.active { background: #FFF2E8; color: #FF6B35; border-color: #FF6B35; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="top-header">
+    <div class="header-main">
+      <div class="header-logo-img">工业品商城</div>
+      <div class="header-nav"><a href="#">首页</a><a href="#">分类</a><a href="#">优惠券中心</a><a href="#" class="active">我的</a></div>
+      <div class="header-user">
+        <div class="header-avatar"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M12 14C8.7 14 6 16.2 6 19H18C18 16.2 15.3 14 12 14Z"/></svg></div>
+        <span style="font-size:14px;color:#333;">用户178****9012</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-main">
+    <div class="order-area">
+      <div class="page-title">确认订单</div>
+
+      <div class="address-card">
+        <div class="address-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+        <div class="address-info">
+          <div class="address-name">张先生 138****9012</div>
+          <div class="address-detail">四川省成都市武侯区天府大道中段88号1栋1502室</div>
+        </div>
+        <div class="address-arrow">›</div>
+      </div>
+
+      <!-- 单商品订单 -->
+      <div class="order-card">
+        <div class="order-shop-header">
+          <div class="order-shop-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div>
+          <div class="order-shop-name">恒锐刀入子旗舰店</div>
+        </div>
+        <div class="order-item">
+          <div class="order-item-img"><img src="https://picsum.photos/100/100?random=30" alt=""></div>
+          <div class="order-item-info">
+            <div class="order-item-name">工业品商城刀入子 CCAE-JCD-D10-L16-PC2-W2</div>
+            <div class="order-item-sku">规格: CCAE-JCD-D10-L16-PC2-W2</div>
+            <div class="order-item-bottom"><span class="order-item-price">¥600.00</span><span class="order-item-count">×1</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="coupon-card" onclick="toggleModal()">
+        <div class="coupon-left">
+          <span class="coupon-label">优惠券</span>
+          <span class="coupon-discount">-¥50.00</span>
+        </div>
+        <div class="coupon-right">已选择1张 ›</div>
+      </div>
+
+      <div class="remark-card">
+        <span class="remark-label">备注</span>
+        <input type="text" class="remark-input" placeholder="选填，可备注特殊需求">
+      </div>
+    </div>
+
+    <div class="summary-area">
+      <div class="summary-card">
+        <div class="summary-title">订单摘要</div>
+        <div class="summary-row"><span class="summary-label">商品金额</span><span class="summary-value">¥600.00</span></div>
+        <div class="summary-row"><span class="summary-label">运费</span><span class="summary-value">¥0.00</span></div>
+        <div class="summary-row discount"><span class="summary-label">优惠券</span><span class="summary-value">-¥50.00</span></div>
+        <div class="summary-row total"><span class="summary-label">应付金额</span><span class="summary-value">¥550.00</span></div>
+        <button class="submit-btn">提交订单</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-mask" id="modalMask" onclick="toggleModal()"></div>
+  <div class="coupon-modal" id="couponModal">
+    <div class="modal-header">
+      <div class="modal-title">选择优惠券</div>
+      <div class="modal-close" onclick="toggleModal()">×</div>
+    </div>
+    <div class="modal-tabs">
+      <button class="modal-tab active" data-tab="available">可用<span style="color:#F02C2C;">(2)</span></button>
+      <button class="modal-tab" data-tab="unavailable">不可用<span style="color:#999;">(1)</span></button>
+      <button class="modal-tab" data-tab="all">全部<span style="color:#999;">(3)</span></button>
+    </div>
+    <div class="modal-body">
+      <div class="tab-modal-content active" data-tab="available">
+        <div class="modal-coupon-item" onclick="selectCoupon(this)">
+          <div class="modal-coupon-radio selected"></div>
+          <div class="modal-coupon-info">
+            <div class="modal-coupon-name">🎫 满500减50</div>
+            <div class="modal-coupon-scope">全场商品 · 已领取</div>
+            <div class="modal-coupon-valid">有效期至：2026-06-30</div>
+          </div>
+          <div class="modal-coupon-right"><div class="modal-coupon-price">-¥50</div><div class="modal-coupon-condition">满500可用</div></div>
+        </div>
+        <div class="modal-coupon-item" onclick="selectCoupon(this)">
+          <div class="modal-coupon-radio"></div>
+          <div class="modal-coupon-info">
+            <div class="modal-coupon-name">🎫 满200减20 新客专享</div>
+            <div class="modal-coupon-scope">全场商品 · 已领取</div>
+            <div class="modal-coupon-valid">有效期至：2026-06-30</div>
+          </div>
+          <div class="modal-coupon-right"><div class="modal-coupon-price">-¥20</div><div class="modal-coupon-condition">满200可用</div></div>
+        </div>
+        <div class="modal-coupon-item disabled">
+          <div class="modal-coupon-radio"></div>
+          <div class="modal-coupon-info">
+            <div class="modal-coupon-name">🎫 限时8折券</div>
+            <div class="modal-coupon-scope">模具钢/特种钢材</div>
+            <div class="modal-coupon-valid">有效期至：2026-06-15</div>
+            <div class="modal-coupon-reason">⚠金额不足（需满300）</div>
+          </div>
+          <div class="modal-coupon-right"><div class="modal-coupon-price">-¥0</div><div class="modal-coupon-condition">不满足门槛</div></div>
+        </div>
+      </div>
+      <div class="tab-modal-content" data-tab="unavailable">
+        <div style="padding:8px 0 4px;font-size:12px;color:#999;font-weight:600;margin-bottom:4px;">— 已过期 —</div>
+        <div class="modal-coupon-item disabled">
+          <div class="modal-coupon-radio"></div>
+          <div class="modal-coupon-info">
+            <div class="modal-coupon-name">🎫 限时8折券</div>
+            <div class="modal-coupon-scope">模具钢/特种钢材</div>
+            <div class="modal-coupon-valid">有效期至：2026-06-15（已过期）</div>
+            <div class="modal-coupon-reason">⚠ 已过期</div>
+          </div>
+          <div class="modal-coupon-right"><div class="modal-coupon-price">-¥0</div><div class="modal-coupon-condition">不可用</div></div>
+        </div>
+      </div>
+      <div class="tab-modal-content" data-tab="all">
+        <div class="modal-coupon-item" onclick="selectCoupon(this)">
+          <div class="modal-coupon-radio selected"></div>
+          <div class="modal-coupon-info">
+            <div class="modal-coupon-name">🎫 满500减50</div>
+            <div class="modal-coupon-scope">全场商品 · 已领取</div>
+            <div class="modal-coupon-valid">有效期至：2026-06-30</div>
+          </div>
+          <div class="modal-coupon-right"><div class="modal-coupon-price">-¥50</div><div class="modal-coupon-condition">满500可用</div></div>
+        </div>
+        <div class="modal-coupon-item" onclick="selectCoupon(this)">
+          <div class="modal-coupon-radio"></div>
+          <div class="modal-coupon-info">
+            <div class="modal-coupon-name">🎫 满200减20 新客专享</div>
+            <div class="modal-coupon-scope">全场商品 · 已领取</div>
+            <div class="modal-coupon-valid">有效期至：2026-06-30</div>
+          </div>
+          <div class="modal-coupon-right"><div class="modal-coupon-price">-¥20</div><div class="modal-coupon-condition">满200可用</div></div>
+        </div>
+        <div class="modal-coupon-item disabled">
+          <div class="modal-coupon-radio"></div>
+          <div class="modal-coupon-info">
+            <div class="modal-coupon-name">🎫 限时8折券</div>
+            <div class="modal-coupon-scope">模具钢/特种钢材</div>
+            <div class="modal-coupon-valid">有效期至：2026-06-15</div>
+            <div class="modal-coupon-reason">⚠ 已过期</div>
+          </div>
+          <div class="modal-coupon-right"><div class="modal-coupon-price">-¥0</div><div class="modal-coupon-condition">不可用</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-confirm" id="modalConfirmBtn" onclick="confirmCoupon()">确定（已选满500减50）</button>
+    </div>
+  </div>
+
+</body>
+
+  <script>
+    function toggleModal() {
+      var m = document.getElementById('modalMask');
+      var c = document.getElementById('couponModal');
+      if (c.classList.contains('show')) { c.classList.remove('show'); m.classList.remove('show'); }
+      else { c.classList.add('show'); m.classList.add('show'); }
+    }
+    function selectCoupon(el) {
+      if (el.classList.contains('disabled')) return;
+      document.querySelectorAll('.modal-coupon-item .modal-coupon-radio').forEach(function(r) { r.classList.remove('selected'); });
+      el.querySelector('.modal-coupon-radio').classList.add('selected');
+      var name = el.querySelector('.modal-coupon-name').textContent.replace('🎫 ', '');
+      document.getElementById('modalConfirmBtn').textContent = '确定（已选' + name + '）';
+    }
+    function confirmCoupon() { toggleModal(); }
+    document.querySelectorAll('.modal-tab').forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        document.querySelectorAll('.modal-tab').forEach(function(t) { t.classList.remove('active'); });
+        this.classList.add('active');
+        var target = this.dataset.tab;
+        document.querySelectorAll('.tab-modal-content').forEach(function(c) { c.classList.remove('active'); if (c.dataset.tab === target) c.classList.add('active'); });
+      });
+    });
+  
+    var ;
+    var couponData = {
+      standard: { available: [
+        { name: '满500减50', price: '-50', condition: '满500可用', reason: '', disabled: false },
+        { name: '满200减20', price: '-20', condition: '满200可用', reason: '', disabled: false },
+        { name: '限时8折券', price: '-0', condition: '需满300', reason: '金额不足（需满300）', disabled: true }
+      ], selected: 0 },
+      casting: { available: [
+        { name: '满200减20', price: '-20', condition: '满200可用', reason: '', disabled: false },
+        { name: '满300减30', price: '-30', condition: '满300可用', reason: '', disabled: false }
+      ], selected: 1 }
+    };);
+      el.classList.add('active');
+      currentSettleType = ;
+      var tip = document.querySelector('.type-tip');
+      if (tip) tip.textContent = '仅可结算同类型商品，当前为' + (currentSettleType === 'standard' ? '');
+      var badge = document.querySelector('.type-badge');
+      if (badge) badge.textContent = currentSettleType === 'standard' ? '';
+      reloadAvailableTab();
+    }
+    function reloadAvailableTab() {
+      var data = couponData[currentSettleType];
+      var availTab = document.querySelector('.tab-modal-content[data-tab="available"]');
+      if (!availTab) return;
+      var items = availTab.querySelectorAll('.modal-coupon-item');
+      items.forEach(function(item, i) {
+        var d = data.available[i];
+        if (!d) return;
+        item.className = d.disabled ? 'modal-coupon-item disabled' : 'modal-coupon-item';
+        var nameEl = item.querySelector('.modal-coupon-name');
+        if (nameEl) nameEl.textContent = '🎫 ' + d.name;
+        var priceEl = item.querySelector('.modal-coupon-price');
+        if (priceEl) priceEl.textContent = '-' + d.price;
+        var condEl = item.querySelector('.modal-coupon-condition');
+        if (condEl) condEl.textContent = d.condition;
+        var reasonEl = item.querySelector('.modal-coupon-reason');
+        if (d.reason) { reasonEl.textContent = '⚠ ' + d.reason; reasonEl.style.display = 'block'; }
+        else if (reasonEl) { reasonEl.style.display = 'none'; }
+        var radio = item.querySelector('.modal-coupon-radio');
+        if (radio) radio.className = i === data.selected ? 'modal-coupon-radio selected' : 'modal-coupon-radio';
+      });
+      var availCount = data.available.filter(function(c) { return !c.disabled; }).length;
+      var typeLabel = currentSettleType === 'standard' ? '';
+      var subEl = document.getElementById('modalSub');
+      if (subEl) subEl.textContent = '共 ' + availCount + ' 张可用（' + typeLabel + '）';
+      var btnEl = document.getElementById('modalConfirmBtn');
+      if (btnEl) btnEl.textContent = '确定（已选' + data.available[data.selected].name + '）';
+    }
+  </script>
+
+</html>

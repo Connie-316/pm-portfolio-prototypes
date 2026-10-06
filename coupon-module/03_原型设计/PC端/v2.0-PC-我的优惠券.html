@@ -1,0 +1,248 @@
+<!--
+  优惠券模块 · 我的优惠券 · PC端券夹
+  版本: v2.18 | 更新: 2026-06-22
+  关联PRD: §11.4我的优惠券Tab规范
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>工业品商城 - 我的优惠券</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif; background: #F5F5F5; color: #333; min-height: 100vh; }
+    .top-header { background: #fff; border-bottom: 1px solid #E5E5E5; position: sticky; top: 0; z-index: 100; }
+    .header-main { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; padding: 0 20px; height: 64px; gap: 40px; }
+    .header-logo-img { width: 120px; height: 36px; background: linear-gradient(135deg, #3370FF, #2860E0); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 14px; }
+    .header-nav { display: flex; gap: 32px; flex: 1; }
+    .header-nav a { font-size: 14px; color: #666; text-decoration: none; }
+    .header-nav a:hover, .header-nav a.active { color: #3370FF; }
+    .header-user { display: flex; align-items: center; gap: 8px; }
+    .header-avatar { width: 32px; height: 32px; background: #E8F0FF; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .header-avatar svg { width: 18px; height: 18px; stroke: #3370FF; fill: none; }
+    .page-main { max-width: 1200px; margin: 0 auto; padding: 24px 20px; }
+    .page-title-bar { margin-bottom: 24px; }
+    .page-title { font-size: 22px; font-weight: 700; color: #333; margin-bottom: 4px; }
+    .page-subtitle { font-size: 13px; color: #999; }
+    .tab-bar { display: flex; border-bottom: 2px solid #E5E5E5; margin-bottom: 24px; }
+    .tab-btn { padding: 12px 24px; font-size: 15px; color: #666; cursor: pointer; position: relative; border: none; background: none; }
+    .tab-btn:hover { color: #3370FF; }
+    .tab-btn.active { color: #3370FF; font-weight: 600; }
+    .tab-btn.active::after { content: ''; position: absolute; bottom: -2px; left: 0; right: 0; height: 2px; background: #3370FF; }
+    .tab-btn .count { font-size: 12px; color: #999; margin-left: 4px; }
+    .tab-btn.active .count { color: #3370FF; }
+    .coupon-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .coupon-card { background: #fff; border-radius: 12px; overflow: hidden; display: flex; box-shadow: 0 2px 8px rgba(0,0,0,0.06); position: relative; }
+    .coupon-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: #3370FF; }
+    .coupon-card.expired { opacity: 0.6; }
+    .coupon-card.expired::before { background: #E5E5E5; }
+    .coupon-card-left { width: 120px; flex-shrink: 0; background: linear-gradient(135deg, #FFF0F0, #FFF5F5); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px 12px; }
+    .coupon-card.expired .coupon-card-left { background: #F5F5F5; }
+    .coupon-price { font-size: 36px; font-weight: 700; color: #F02C2C; line-height: 1; }
+    .coupon-card.expired .coupon-price { color: #999; }
+    .coupon-price-unit { font-size: 14px; color: #F02C2C; margin-top: 4px; }
+    .coupon-card.expired .coupon-price-unit { color: #999; }
+    .coupon-threshold { font-size: 12px; color: #999; margin-top: 8px; }
+    .coupon-card-right { flex: 1; padding: 16px; display: flex; flex-direction: column; }
+    .coupon-card-name { font-size: 16px; font-weight: 600; color: #333; margin-bottom: 8px; }
+    .coupon-card-tags { display: flex; gap: 6px; margin-bottom: 8px; }
+    .coupon-tag { font-size: 11px; padding: 2px 8px; border-radius: 4px; }
+    .tag-available { background: #FFF2E8; color: #FF6B35; }
+    .tag-used { background: #F5F5F5; color: #999; }
+    .tag-expired { background: #FFF1F0; color: #F5222D; }
+    .coupon-card-scope { font-size: 13px; color: #666; margin-bottom: 4px; }
+    .coupon-card-valid { font-size: 12px; color: #999; margin-bottom: 4px; }
+    .coupon-card-used-info { font-size: 12px; color: #999; margin-bottom: 12px; }
+    .coupon-card-action { margin-top: auto; display: flex; justify-content: flex-end; }
+    .btn-use { padding: 8px 20px; background: linear-gradient(90deg, #FF6B35, #F02C2C); color: #fff; border-radius: 20px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; box-shadow: 0 2px 8px rgba(240,44,44,0.2); }
+    .btn-disabled { padding: 8px 20px; background: #F5F5F5; color: #999; border-radius: 20px; font-size: 13px; border: 1px solid #E5E5E5; }
+    .btn-claimed { padding: 8px 20px; background: #F0FFF0; color: #52C41A; border-radius: 20px; font-size: 13px; font-weight: 600; border: 1px solid #52C41A; }
+    .btn-gouse { padding: 8px 20px; background: linear-gradient(90deg, #FF6B35, #F02C2C); color: #fff; border-radius: 20px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; box-shadow: 0 2px 8px rgba(240,44,44,0.2); }
+    .pagination { display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 32px; }
+    .page-btn { min-width: 36px; height: 36px; padding: 0 12px; background: #fff; border: 1px solid #E5E5E5; border-radius: 4px; font-size: 14px; color: #666; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .page-btn:hover { border-color: #3370FF; color: #3370FF; }
+    .page-btn.active { background: #3370FF; color: #fff; border-color: #3370FF; }
+    .page-btn.disabled { color: #E5E5E5; cursor: not-allowed; }
+
+    .coupon-card.discount::before { background: #52C41A; }
+    .coupon-card.discount .coupon-card-left { background: linear-gradient(135deg, #F0FFF0, #F5FFF5); }
+    .coupon-card.discount .coupon-price { color: #52C41A; }
+    .coupon-card.discount .coupon-price-unit { color: #52C41A; }
+    .coupon-card.discount.used .coupon-price,
+    .coupon-card.discount.expired .coupon-price { color: #999; }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .coupon-card.used { opacity: 0.6; }
+    .coupon-card.used::before { background: #E5E5E5; }
+    .coupon-card.used .coupon-price { color: #999; }
+    .coupon-card.used .coupon-price-unit { color: #999; }
+  </style>
+<body>
+  <div class="top-header">
+    <div class="header-main">
+      <div class="header-logo-img">工业品商城</div>
+      <div class="header-nav"><a href="#">首页</a><a href="#">分类</a><a href="#">优惠券中心</a><a href="#" class="active">我的</a></div>
+      <div class="header-user">
+        <div class="header-avatar"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M12 14C8.7 14 6 16.2 6 19H18C18 16.2 15.3 14 12 14Z"/></svg></div>
+        <span style="font-size:14px;color:#333;">用户178****9012</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-main">
+    <div class="page-title-bar">
+      <div class="page-title">🎫 我的优惠券</div>
+      <div class="page-subtitle">已领取的优惠券，可在下单时使用</div>
+    </div>
+
+    <div class="tab-bar">
+      <button class="tab-btn active" data-tab="available">可用<span class="count">(3)</span></button>
+      <button class="tab-btn" data-tab="unavailable">不可用<span class="count">(2)</span></button>
+      <button class="tab-btn" data-tab="all">全部<span class="count">(5)</span></button>
+    </div>
+
+    <!-- 可用 Tab -->
+    <div class="tab-content active" data-tab="available">
+      <div class="coupon-grid">
+        <div class="coupon-card discount">
+          <div class="coupon-card-left"><div class="coupon-price">8</div><div class="coupon-price-unit">折</div><div class="coupon-threshold">满300可用</div></div>
+          <div class="coupon-card-right">
+            <div class="coupon-card-name">限时8折券</div>
+            <div class="coupon-card-tags"><span class="coupon-tag tag-available">待使用</span></div>
+            <div class="coupon-card-scope">适用范围：模具钢/特种钢材</div>
+            <div class="coupon-card-valid">有效期至：2026-06-15（还剩5天）</div>
+            <div class="coupon-card-action"><button class="btn-gouse" onclick="location.href='v2.0-PC-优惠券去使用商品列表.html'">去使用</button></div>
+          </div>
+        </div>
+        <div class="coupon-card">
+          <div class="coupon-card-left"><div class="coupon-price">¥20</div><div class="coupon-price-unit">满200可用</div><div class="coupon-threshold">无门槛限制</div></div>
+          <div class="coupon-card-right">
+            <div class="coupon-card-name">满200减20 新客专享</div>
+            <div class="coupon-card-tags"><span class="coupon-tag tag-available">待使用</span></div>
+            <div class="coupon-card-scope">适用范围：全场商品</div>
+            <div class="coupon-card-valid">有效期至：2026-06-30（还剩15天）</div>
+            <div class="coupon-card-action"><button class="btn-gouse" onclick="location.href='v2.0-PC-优惠券去使用商品列表.html'">去使用</button></div>
+          </div>
+        </div>
+        <div class="coupon-card">
+          <div class="coupon-card-left"><div class="coupon-price">¥50</div><div class="coupon-price-unit">满500可用</div><div class="coupon-threshold">无门槛限制</div></div>
+          <div class="coupon-card-right">
+            <div class="coupon-card-name">满500减50</div>
+            <div class="coupon-card-tags"><span class="coupon-tag tag-available">待使用</span></div>
+            <div class="coupon-card-scope">适用范围：全场商品</div>
+            <div class="coupon-card-valid">有效期至：2026-06-30（还剩15天）</div>
+            <div class="coupon-card-action"><button class="btn-gouse" onclick="location.href='v2.0-PC-优惠券去使用商品列表.html'">去使用</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 不可用 Tab（已过期优先） -->
+    <div class="tab-content" data-tab="unavailable">
+      <div class="coupon-grid">
+        <div class="coupon-card expired">
+          <div class="coupon-card-left"><div class="coupon-price">¥30</div><div class="coupon-price-unit">满300可用</div><div class="coupon-threshold">无门槛限制</div></div>
+          <div class="coupon-card-right">
+            <div class="coupon-card-name">满300减30</div>
+            <div class="coupon-card-tags"><span class="coupon-tag tag-expired">已过期</span></div>
+            <div class="coupon-card-scope">适用范围：全场商品</div>
+            <div class="coupon-card-used-info">失效时间：2026-05-31 23:59</div>
+            <div class="coupon-card-action"><button class="btn-disabled">已过期</button></div>
+          </div>
+        </div>
+        <div class="coupon-card" style="opacity:0.6;">
+          <div class="coupon-card-left"><div class="coupon-price">¥50</div><div class="coupon-price-unit">满500可用</div><div class="coupon-threshold">无门槛限制</div></div>
+          <div class="coupon-card-right">
+            <div class="coupon-card-name">满500减50</div>
+            <div class="coupon-card-tags"><span class="coupon-tag tag-used">已使用</span></div>
+            <div class="coupon-card-scope">适用范围：全场商品</div>
+            <div class="coupon-card-used-info">使用时间：2026-06-01 14:32</div>
+            <div class="coupon-card-used-info">订单号：DD2026060100123</div>
+            <div class="coupon-card-action"><button class="btn-disabled">已使用</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 全部 Tab -->
+    <div class="tab-content" data-tab="all">
+      <div class="coupon-grid">
+        <div class="coupon-card discount">
+          <div class="coupon-card-left"><div class="coupon-price">8</div><div class="coupon-price-unit">折</div><div class="coupon-threshold">满300可用</div></div>
+          <div class="coupon-card-right">
+            <div class="coupon-card-name">限时8折券</div>
+            <div class="coupon-card-tags"><span class="coupon-tag tag-available">待使用</span></div>
+            <div class="coupon-card-scope">适用范围：模具钢/特种钢材</div>
+            <div class="coupon-card-valid">有效期至：2026-06-15（还剩5天）</div>
+            <div class="coupon-card-action"><button class="btn-gouse" onclick="location.href='v2.0-PC-优惠券去使用商品列表.html'">去使用</button></div>
+          </div>
+        </div>
+        <div class="coupon-card">
+          <div class="coupon-card-left"><div class="coupon-price">¥20</div><div class="coupon-price-unit">满200可用</div><div class="coupon-threshold">无门槛限制</div></div>
+          <div class="coupon-card-right">
+            <div class="coupon-card-name">满200减20 新客专享</div>
+            <div class="coupon-card-tags"><span class="coupon-tag tag-available">待使用</span></div>
+            <div class="coupon-card-scope">适用范围：全场商品</div>
+            <div class="coupon-card-valid">有效期至：2026-06-30（还剩15天）</div>
+            <div class="coupon-card-action"><button class="btn-gouse" onclick="location.href='v2.0-PC-优惠券去使用商品列表.html'">去使用</button></div>
+          </div>
+        </div>
+        <div class="coupon-card">
+          <div class="coupon-card-left"><div class="coupon-price">¥50</div><div class="coupon-price-unit">满500可用</div><div class="coupon-threshold">无门槛限制</div></div>
+          <div class="coupon-card-right">
+            <div class="coupon-card-name">满500减50</div>
+            <div class="coupon-card-tags"><span class="coupon-tag tag-available">待使用</span></div>
+            <div class="coupon-card-scope">适用范围：全场商品</div>
+            <div class="coupon-card-valid">有效期至：2026-06-30（还剩15天）</div>
+            <div class="coupon-card-action"><button class="btn-gouse" onclick="location.href='v2.0-PC-优惠券去使用商品列表.html'">去使用</button></div>
+          </div>
+        </div>
+        <div class="coupon-card" style="opacity:0.6;">
+          <div class="coupon-card-left"><div class="coupon-price">¥50</div><div class="coupon-price-unit">满500可用</div><div class="coupon-threshold">无门槛限制</div></div>
+          <div class="coupon-card-right">
+            <div class="coupon-card-name">满500减50</div>
+            <div class="coupon-card-tags"><span class="coupon-tag tag-used">已使用</span></div>
+            <div class="coupon-card-scope">适用范围：全场商品</div>
+            <div class="coupon-card-used-info">使用时间：2026-06-01 14:32</div>
+            <div class="coupon-card-used-info">订单号：DD2026060100123</div>
+            <div class="coupon-card-action"><button class="btn-disabled">已使用</button></div>
+          </div>
+        </div>
+        <div class="coupon-card expired">
+          <div class="coupon-card-left"><div class="coupon-price">¥30</div><div class="coupon-price-unit">满300可用</div><div class="coupon-threshold">无门槛限制</div></div>
+          <div class="coupon-card-right">
+            <div class="coupon-card-name">满300减30</div>
+            <div class="coupon-card-tags"><span class="coupon-tag tag-expired">已过期</span></div>
+            <div class="coupon-card-scope">适用范围：全场商品</div>
+            <div class="coupon-used-info">失效时间：2026-05-31 23:59</div>
+            <div class="coupon-card-action"><button class="btn-disabled">已过期</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pagination">
+      <div class="page-btn disabled">‹</div>
+      <div class="page-btn active">1</div>
+      <div class="page-btn">›</div>
+    </div>
+  </div>
+
+  <script>
+    document.querySelectorAll('.tab-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+        this.classList.add('active');
+        var target = this.dataset.tab;
+        document.querySelectorAll('.tab-content').forEach(function(c) {
+          c.classList.remove('active');
+          if (c.dataset.tab === target) { c.classList.add('active'); }
+        });
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,262 @@
+<!--
+  优惠券模块 · 商品详情 · PC端领券
+  版本: v2.18 | 更新: 2026-06-22
+  关联PRD: §11.5商品详情领券
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>工业品商城 - 商品详情</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif; background: #F5F5F5; color: #333; min-height: 100vh; }
+    .top-header { background: #fff; border-bottom: 1px solid #E5E5E5; position: sticky; top: 0; z-index: 100; }
+    .header-main { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; padding: 0 20px; height: 64px; gap: 40px; }
+    .header-logo-img { width: 120px; height: 36px; background: linear-gradient(135deg, #3370FF, #2860E0); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 14px; }
+    .header-nav { display: flex; gap: 32px; flex: 1; }
+    .header-nav a { font-size: 14px; color: #666; text-decoration: none; }
+    .header-nav a:hover, .header-nav a.active { color: #3370FF; }
+    .header-user { display: flex; align-items: center; gap: 8px; }
+    .header-avatar { width: 32px; height: 32px; background: #E8F0FF; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .header-avatar svg { width: 18px; height: 18px; stroke: #3370FF; fill: none; }
+    .page-main { max-width: 1200px; margin: 0 auto; padding: 24px 20px; display: flex; gap: 24px; }
+    .goods-area { flex: 1; }
+    .goods-gallery { display: flex; gap: 16px; margin-bottom: 24px; }
+    .goods-main-img { flex: 1; height: 400px; background: linear-gradient(135deg, #E8F0FF, #CCE0FF); border-radius: 12px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .goods-main-img img { width: 100%; height: 100%; object-fit: cover; }
+    .goods-thumbs { display: flex; flex-direction: column; gap: 8px; }
+    .goods-thumb { width: 80px; height: 80px; background: linear-gradient(135deg, #E8F0FF, #CCE0FF); border-radius: 8px; border: 2px solid transparent; cursor: pointer; overflow: hidden; }
+    .goods-thumb.active { border-color: #3370FF; }
+    .goods-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .goods-info-card { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 16px; }
+    .goods-title { font-size: 20px; font-weight: 700; color: #333; margin-bottom: 8px; }
+    .goods-desc { font-size: 14px; color: #999; margin-bottom: 16px; line-height: 1.5; }
+    .goods-price-row { display: flex; align-items: baseline; gap: 8px; margin-bottom: 16px; }
+    .goods-price { font-size: 28px; font-weight: 700; color: #F02C2C; }
+    .goods-price-original { font-size: 14px; color: #999; text-decoration: line-through; }
+    .goods-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+    .goods-tag { padding: 4px 12px; background: #E8F0FF; color: #3370FF; border-radius: 4px; font-size: 12px; }
+    .coupon-section { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 16px; }
+    .coupon-section-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; margin-bottom: 12px; }
+    .coupon-section-title { font-size: 15px; font-weight: 600; color: #333; display: flex; align-items: center; gap: 8px; }
+    .coupon-section-tag { font-size: 10px; padding: 2px 8px; background: #FFF2E8; color: #FF6B35; border-radius: 4px; }
+    .coupon-section-count { font-size: 14px; color: #F02C2C; font-weight: 600; }
+    .coupon-expand { border-top: 1px solid #F0F0F0; padding-top: 12px; display: none; }
+    .coupon-expand.show { display: block; }
+    .coupon-expand-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #F0F0F0; }
+    .coupon-expand-item:last-child { border-bottom: none; }
+    .coupon-expand-left { width: 70px; flex-shrink: 0; background: linear-gradient(135deg, #FFF0F0, #FFF5F5); border-radius: 6px; padding: 8px; text-align: center; }
+    .coupon-expand-price { font-size: 18px; font-weight: 700; color: #F02C2C; }
+    .coupon-expand-condition { font-size: 11px; color: #999; }
+    .coupon-expand-info { flex: 1; }
+    .coupon-expand-name { font-size: 14px; font-weight: 600; color: #333; margin-bottom: 2px; }
+    .coupon-expand-scope { font-size: 12px; color: #666; margin-bottom: 2px; }
+    .coupon-expand-valid { font-size: 11px; color: #999; }
+    .coupon-expand-action { flex-shrink: 0; }
+    .btn-get { padding: 6px 16px; background: linear-gradient(90deg, #FF6B35, #F02C2C); color: #fff; border-radius: 16px; font-size: 12px; font-weight: 600; border: none; cursor: pointer; }
+    .btn-gotten { padding: 6px 14px; background: #F0FFF0; color: #52C41A; border-radius: 14px; font-size: 12px; border: 1px solid #B7EB8F; }
+    .btn-gouse { padding: 6px 14px; background: linear-gradient(135deg, #FF6B35, #F02C2C); color: #fff; border-radius: 14px; font-size: 12px; font-weight: 600; border: none; cursor: pointer; box-shadow: 0 2px 8px rgba(240,44,44,0.25); }
+    .coupon-tip { font-size: 12px; color: #999; padding-top: 8px; }
+    .address-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 16px; }
+    .address-title { font-size: 15px; font-weight: 600; color: #333; margin-bottom: 12px; }
+    .address-row { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+    .address-info { flex: 1; }
+    .address-name { font-size: 14px; font-weight: 600; color: #333; margin-bottom: 4px; }
+    .address-detail { font-size: 13px; color: #666; }
+    .address-arrow { font-size: 20px; color: #999; }
+    .payment-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 16px; }
+    .payment-title { font-size: 15px; font-weight: 600; color: #333; margin-bottom: 12px; }
+    .payment-row { display: flex; gap: 12px; }
+    .payment-item { flex: 1; padding: 12px; border: 1px solid #E5E5E5; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+    .payment-item.selected { border-color: #3370FF; background: #E8F0FF; }
+    .payment-radio { width: 16px; height: 16px; border: 2px solid #ddd; border-radius: 50%; flex-shrink: 0; }
+    .payment-item.selected .payment-radio { background: #3370FF; border-color: #3370FF; }
+    .payment-name { font-size: 13px; color: #333; }
+    .shop-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 16px; display: flex; align-items: center; gap: 12px; }
+    .shop-icon { width: 48px; height: 48px; background: linear-gradient(135deg, #E8F0FF, #CCE0FF); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+    .shop-icon svg { width: 24px; height: 24px; stroke: #3370FF; fill: none; }
+    .shop-info { flex: 1; }
+    .shop-name { font-size: 15px; font-weight: 600; color: #333; margin-bottom: 4px; }
+    .shop-desc { font-size: 12px; color: #999; }
+    .action-area { width: 300px; flex-shrink: 0; }
+    .action-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); position: sticky; top: 88px; }
+    .action-title { font-size: 16px; font-weight: 700; color: #333; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #F0F0F0; }
+    .action-row { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 10px; }
+    .action-label { color: #666; }
+    .action-value { color: #333; }
+    .action-row.discount .action-value { color: #F02C2C; }
+    .action-row.total { padding-top: 12px; margin-top: 12px; border-top: 1px solid #F0F0F0; font-weight: 600; }
+    .action-row.total .action-label { color: #333; font-size: 15px; }
+    .action-row.total .action-value { color: #F02C2C; font-size: 20px; }
+    .action-btn { width: 100%; padding: 14px; background: linear-gradient(90deg, #FF6B35, #F02C2C); color: #fff; border-radius: 8px; font-size: 16px; font-weight: 600; border: none; cursor: pointer; margin-top: 16px; box-shadow: 0 3px 10px rgba(240,44,44,0.25); }
+    .action-btn-outline { width: 100%; padding: 14px; background: #fff; color: #F02C2C; border-radius: 8px; font-size: 16px; font-weight: 600; border: 1.5px solid #F02C2C; cursor: pointer; margin-top: 8px; }
+
+    .claim-toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #52C41A;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 14px;
+      z-index: 9999;
+      animation: slideDown 0.3s;
+    }
+    @keyframes slideDown { from { opacity:0; transform: translateX(-50%) translateY(-10px); } to { opacity:1; transform: translateX(-50%) translateY(0); } }
+  </style>
+</head>
+<body>
+  <div class="top-header">
+    <div class="header-main">
+      <div class="header-logo-img">工业品商城</div>
+      <div class="header-nav"><a href="#">首页</a><a href="#">分类</a><a href="#">优惠券中心</a><a href="#" class="active">我的</a></div>
+      <div class="header-user">
+        <div class="header-avatar"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M12 14C8.7 14 6 16.2 6 19H18C18 16.2 15.3 14 12 14Z"/></svg></div>
+        <span style="font-size:14px;color:#333;">用户178****9012</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-main">
+    <div class="goods-area">
+      <div class="goods-gallery">
+        <div class="goods-main-img"><img src="https://picsum.photos/400/400?random=50" alt=""></div>
+        <div class="goods-thumbs">
+          <div class="goods-thumb active"><img src="https://picsum.photos/80/80?random=50" alt=""></div>
+          <div class="goods-thumb"><img src="https://picsum.photos/80/80?random=51" alt=""></div>
+          <div class="goods-thumb"><img src="https://picsum.photos/80/80?random=52" alt=""></div>
+        </div>
+      </div>
+
+      <div class="goods-info-card">
+        <div class="goods-title">工业品商城刀入子 CCAE-JCD-D10-L16-PC2-W2</div>
+        <div class="goods-desc">精密机械加工专用 · 高硬度合金钢 · 进口材质</div>
+        <div class="goods-price-row">
+          <span class="goods-price">¥81.40</span>
+          <span class="goods-price-original">¥98.00</span>
+        </div>
+        <div class="goods-tags">
+          <span class="goods-tag">品质保障</span>
+          <span class="goods-tag">一件包邮</span>
+          <span class="goods-tag">急速发货</span>
+        </div>
+      </div>
+
+      <div class="coupon-section">
+        <div class="coupon-section-header" onclick="toggleCoupon()">
+          <div class="coupon-section-title">🎫 领券 <span class="coupon-section-tag">限时</span></div>
+          <div class="coupon-section-count">可领2张 ›</div>
+        </div>
+        <div class="coupon-expand" id="couponExpand">
+          <div class="coupon-expand-item">
+            <div class="coupon-expand-left">
+              <div class="coupon-expand-price">¥50</div>
+              <div class="coupon-expand-condition">满500可用</div>
+            </div>
+            <div class="coupon-expand-info">
+              <div class="coupon-expand-name">🎫 满500减50</div>
+              <div class="coupon-expand-scope">全场通用</div>
+              <div class="coupon-expand-valid">有效期至2026-06-30</div>
+            </div>
+            <div class="coupon-expand-action"><button class="btn-gouse" onclick="location.href='v2.0-PC-优惠券去使用商品列表.html'">去使用 →</button></div>
+          </div>
+          <div class="coupon-expand-item">
+            <div class="coupon-expand-left">
+              <div class="coupon-expand-price">¥20</div>
+              <div class="coupon-expand-condition">满200可用</div>
+            </div>
+            <div class="coupon-expand-info">
+              <div class="coupon-expand-name">🎫 满200减20 新客专享</div>
+              <div class="coupon-expand-scope">全场通用</div>
+              <div class="coupon-expand-valid">有效期至2026-06-30</div>
+            </div>
+            <div class="coupon-expand-action"><button class="btn-get" onclick="claimCoupon(event)">立即领取</button></div>
+          </div>
+          <div class="coupon-expand-item">
+            <div class="coupon-expand-left" style="background:linear-gradient(135deg,#FFF0F0,#FFF5F5);">
+              <div class="coupon-expand-price">8</div>
+              <div class="coupon-expand-condition">折</div>
+            </div>
+            <div class="coupon-expand-info">
+              <div class="coupon-expand-name">🎫 限时8折券</div>
+              <div class="coupon-expand-scope">限品类：模具钢</div>
+              <div class="coupon-expand-valid">有效期至2026-06-20</div>
+            </div>
+            <div class="coupon-expand-action"><button class="btn-get" onclick="claimCoupon(event)">立即领取</button></div>
+          </div>
+          <div class="coupon-tip">● 限时折扣商品不可使用优惠券</div>
+        </div>
+      </div>
+
+      <div class="address-card">
+        <div class="address-title">收货地址</div>
+        <div class="address-row">
+          <div class="address-info">
+            <div class="address-name">张先生 138****9012</div>
+            <div class="address-detail">四川省成都市武侯区天府大道中段88号1栋1502室</div>
+          </div>
+          <div class="address-arrow">›</div>
+        </div>
+      </div>
+
+      <div class="payment-card">
+        <div class="payment-title">支付方式</div>
+        <div class="payment-row">
+          <div class="payment-item selected">
+            <div class="payment-radio"></div>
+            <div class="payment-name">线下转账</div>
+          </div>
+          <div class="payment-item">
+            <div class="payment-radio"></div>
+            <div class="payment-name">账期支付</div>
+          </div>
+          <div class="payment-item">
+            <div class="payment-radio"></div>
+            <div class="payment-name">在线支付</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="shop-card">
+        <div class="shop-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+        <div class="shop-info">
+          <div class="shop-name">恒锐刀入子旗舰店</div>
+          <div class="shop-desc">刀入子 · 导柱组件 · 模具配件</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-area">
+      <div class="action-card">
+        <div class="action-title">订单信息</div>
+        <div class="action-row"><span class="action-label">商品金额</span><span class="action-value">¥81.40</span></div>
+        <div class="action-row"><span class="action-label">运费</span><span class="action-value">免运费</span></div>
+        <div class="action-row discount"><span class="action-label">优惠券</span><span class="action-value">-¥50.00</span></div>
+        <div class="action-row total"><span class="action-label">应付金额</span><span class="action-value">¥31.40</span></div>
+        <button class="action-btn">提交订单</button>
+        <button class="action-btn-outline">加入购物车</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleCoupon() { document.getElementById('couponExpand').classList.toggle('show'); }
+    function claimCoupon(e) {
+  var b = e.target;
+  b.textContent = '去使用 →';
+  b.className = 'btn-gouse';
+  b.onclick = function() { location.href = 'v2.0-PC-优惠券去使用商品列表.html'; };
+  // 领券成功提示
+  var t = document.createElement('div');
+  t.className = 'claim-toast';
+  t.textContent = '✓领取成功';
+  document.body.appendChild(t);
+  setTimeout(function() { t.remove(); }, 2000);
+}
+  </script>
+</body>
+</html>

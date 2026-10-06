@@ -1,0 +1,240 @@
+<!--
+  优惠券模块 · 确认订单 · 部分退款场景
+  版本: v2.18 | 更新: 2026-06-22
+  关联PRD: §8.2部分退款规则
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>工业品商城 - 退款成功（部分退款）</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background: #F5F5F5;
+      min-height: 100vh;
+    }
+    .phone-frame {
+      width: 375px;
+      margin: 0 auto;
+      background: #F5F5F5;
+      min-height: 100vh;
+      position: relative;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .top-fixed {
+      position: fixed;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 375px;
+      background: #fff;
+      z-index: 100;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      padding-top: env(safe-area-inset-top);
+    }
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 22px;
+      padding: 0 20px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #333;
+    }
+    .nav-bar { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; }
+    .nav-back { font-size: 20px; color: #333; }
+    .nav-title { font-size: 16px; font-weight: 600; color: #333; flex: 1; text-align: center; }
+    .content { padding-top: 56px; padding-bottom: 80px; }
+    .refund-success {
+      background: #fff;
+      text-align: center;
+      padding: 40px 24px 24px;
+      margin-bottom: 10px;
+    }
+    .refund-icon {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, #52C41A, #73D13D);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+    }
+    .refund-icon svg { width: 32px; height: 32px; stroke: #fff; fill: none; }
+    .refund-title { font-size: 18px; font-weight: 700; color: #333; margin-bottom: 8px; }
+    .refund-amount { font-size: 28px; font-weight: 700; color: #F02C2C; margin-bottom: 16px; }
+    .refund-info { background: #F5F5F5; border-radius: 12px; padding: 16px; text-align: left; }
+    .refund-info-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; }
+    .refund-info-row:last-child { margin-bottom: 0; }
+    .refund-info-label { color: #666; }
+    .refund-info-value { color: #333; font-weight: 500; }
+    /* 优惠券不追溯提示 */
+    .coupon-note-tip {
+      background: #FFF2E8;
+      border: 1px solid #FFBB8F;
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin: 0 12px 10px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .coupon-note-tip .icon-wrap {
+      width: 28px;
+      height: 28px;
+      background: #FF6B35;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .coupon-note-tip .icon-wrap svg { width: 16px; height: 16px; stroke: #fff; fill: none; }
+    .coupon-note-tip .text { flex: 1; }
+    .coupon-note-tip .text-title { font-size: 14px; font-weight: 600; color: #FF6B35; margin-bottom: 4px; }
+    .coupon-note-tip .text-desc { font-size: 12px; color: #666; line-height: 1.4; }
+    .order-detail-section { background: #fff; padding: 14px 16px; margin-bottom: 10px; }
+    .order-detail-title { font-size: 14px; font-weight: 600; color: #333; margin-bottom: 12px; }
+    .order-item { display: flex; gap: 10px; padding: 10px 0; border-top: 1px solid #F0F0F0; }
+    .order-item:first-of-type { border-top: none; }
+    .order-item.refunded { opacity: 0.5; }
+    .order-item.refunded .order-item-name { text-decoration: line-through; }
+    .order-item-img { width: 64px; height: 64px; background: linear-gradient(135deg, #E8F0FF, #D0E0FF); border-radius: 8px; flex-shrink: 0; }
+    .order-item-img img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
+    .order-item-info { flex: 1; min-width: 0; }
+    .order-item-name { font-size: 13px; color: #333; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 4px; }
+    .order-item-sku { font-size: 11px; color: #999; margin-bottom: 6px; }
+    .order-item-bottom { display: flex; justify-content: space-between; align-items: center; }
+    .order-item-price { font-size: 14px; font-weight: 600; color: #F02C2C; }
+    .order-item-count { font-size: 12px; color: #666; }
+    .order-item-refund-tag { font-size: 10px; background: #FFF1F0; color: #FF4D4F; padding: 2px 6px; border-radius: 4px; margin-left: 6px; }
+    .coupon-remain-section {
+      background: #F6FFED;
+      border: 1px solid #B7EB8F;
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin: 0 12px 10px;
+    }
+    .coupon-remain-title { font-size: 13px; font-weight: 600; color: #52C41A; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+    .coupon-remain-title svg { width: 14px; height: 14px; stroke: #52C41A; fill: none; }
+    .coupon-remain-card { background: #fff; border-radius: 8px; padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; }
+    .coupon-remain-info { font-size: 13px; color: #333; }
+    .coupon-remain-info span { color: #F02C2C; font-weight: 600; }
+    .coupon-remain-valid { font-size: 11px; color: #999; }
+    .price-section { background: #fff; padding: 14px 16px; margin-bottom: 10px; }
+    .price-row { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 8px; }
+    .price-row:last-child { margin-bottom: 0; }
+    .price-label { color: #666; }
+    .price-value { color: #333; }
+    .price-row.discount .price-value { color: #F02C2C; }
+    .price-row.total { padding-top: 10px; margin-top: 8px; border-top: 1px solid #F0F0F0; font-weight: 600; }
+    .price-row.total .price-label { color: #333; font-size: 15px; }
+    .price-row.total .price-value { color: #F02C2C; font-size: 18px; }
+    .submit-bar {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 375px;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+      padding-bottom: calc(12px + env(safe-area-inset-bottom));
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
+      z-index: 100;
+    }
+    .submit-price { flex: 1; }
+    .submit-price-label { font-size: 12px; color: #999; }
+    .submit-price-value { font-size: 20px; font-weight: 700; color: #F02C2C; }
+    .submit-btn { padding: 14px 32px; background: linear-gradient(90deg, #FF6B35, #F02C2C); color: #fff; border-radius: 12px; font-size: 15px; font-weight: 600; border: none; box-shadow: 0 3px 10px rgba(240,44,44,0.25); }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="top-fixed">
+      <div class="status-bar"><div>9:41</div><div style="display:flex;gap:4px;"><svg width="18" height="14" viewBox="0 0 24 16"><rect x="0" y="5" width="22" height="10" rx="3" stroke="#333" stroke-width="1.5" fill="none"/><rect x="22" y="7" width="2" height="6" rx="1" fill="#333"/></svg><svg width="18" height="12" viewBox="0 0 24 12"><path d="M2 6 L6 2 L10 6 L14 2 L18 6 L22 2" stroke="#333" stroke-width="1.5" fill="none"/></svg><svg width="18" height="12" viewBox="0 0 24 12"><rect x="0" y="0" width="22" height="12" rx="3" stroke="#333" stroke-width="1.5" fill="none"/><rect x="22" y="3" width="2" height="6" rx="1" fill="#333"/></svg></div></div>
+      <div class="nav-bar"><div class="nav-back">‹</div><div class="nav-title">退款详情</div><div style="width:32px;"></div></div>
+    </div>
+
+    <div class="content">
+      <!-- 退款成功状态 -->
+      <div class="refund-success">
+        <div class="refund-icon"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div>
+        <div class="refund-title">退款成功</div>
+        <div class="refund-amount">¥570.00</div>
+        <div class="refund-info">
+          <div class="refund-info-row"><span class="refund-info-label">退款方式</span><span class="refund-info-value">退回原支付渠道</span></div>
+          <div class="refund-info-row"><span class="refund-info-label">退款账户</span><span class="refund-info-value">微信支付（****9012）</span></div>
+          <div class="refund-info-row"><span class="refund-info-label">预计到账</span><span class="refund-info-value">1-3个工作日</span></div>
+          <div class="refund-info-row"><span class="refund-info-label">订单编号</span><span class="refund-info-value">DD20260610003</span></div>
+          <div class="refund-info-row"><span class="refund-info-label">退款时间</span><span class="refund-info-value">2026-06-10 09:41</span></div>
+        </div>
+      </div>
+
+      <!-- 优惠券不追溯提示（部分退款） -->
+      <div class="coupon-note-tip">
+        <div class="icon-wrap"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg></div>
+        <div class="text">
+          <div class="text-title">优惠券已使用部分不追溯</div>
+          <div class="text-desc">退款商品分摊的优惠金额不予退还，剩余商品继续使用原优惠券（优惠保持不变）</div>
+        </div>
+      </div>
+
+      <!-- 剩余优惠券提示 -->
+      <div class="coupon-remain-section">
+        <div class="coupon-remain-title">
+          <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+          优惠券仍可使用
+        </div>
+        <div class="coupon-remain-card">
+          <div class="coupon-remain-info">「满500减50」<span>（剩余商品继续可用）</span></div>
+          <div class="coupon-remain-valid">有效期至2026-06-30</div>
+        </div>
+      </div>
+
+      <!-- 订单详情 -->
+      <div class="order-detail-section">
+        <div class="order-detail-title">退款商品</div>
+        <div class="order-item refunded">
+          <div class="order-item-img"><img src="https://picsum.photos/100/100?random=21" alt=""></div>
+          <div class="order-item-info">
+            <div class="order-item-name">工业品商城刀入子 CCAE-JCD-D10-L16-PC2-W2 <span class="order-item-refund-tag">已退款</span></div>
+            <div class="order-item-sku">规格: CCAE-JCD-D10-L16-PC2-W2</div>
+            <div class="order-item-bottom"><span class="order-item-price">¥600.00</span><span class="order-item-count">×1</span></div>
+          </div>
+        </div>
+        <div class="order-item">
+          <div class="order-item-img"><img src="https://picsum.photos/100/100?random=22" alt=""></div>
+          <div class="order-item-info">
+            <div class="order-item-name">精密导柱组件 标准型</div>
+            <div class="order-item-sku">规格: φ25×100</div>
+            <div class="order-item-bottom"><span class="order-item-price">¥400.00</span><span class="order-item-count">×1</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 退款明细 -->
+      <div class="price-section">
+        <div class="price-row"><span class="price-label">原订单商品金额</span><span class="price-value">¥1000.00</span></div>
+        <div class="price-row"><span class="price-label">原优惠券（已使用，不追溯）</span><span class="price-value">-¥50.00</span></div>
+        <div class="price-row"><span class="price-label">退款商品（已分摊优惠¥30）</span><span class="price-value">¥570.00</span></div>
+        <div class="price-row" style="color:#999;font-size:12px;"><span class="price-label">（实付¥600-分摊优惠¥30，退款不退分摊）</span><span class="price-value"></span></div>
+        <div class="price-row total"><span class="price-label">退款金额</span><span class="price-value" style="color:#52C41A;font-weight:600;">¥570.00</span></div>
+        <div class="price-row" style="border-top:1px dashed #F0F0F0;padding-top:8px;margin-top:4px;"><span class="price-label">剩余订单应付</span><span class="price-value">¥380.00</span></div>
+      </div>
+    </div>
+
+    <div class="submit-bar">
+      <div class="submit-price"><div class="submit-price-label">退还金额</div><div class="submit-price-value">¥570.00</div></div>
+      <button class="submit-btn" onclick="location.href='我的订单列表.html'">完成</button>
+    </div>
+  </div>
+</body>
+</html>

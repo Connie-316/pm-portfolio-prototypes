@@ -1,0 +1,512 @@
+<!--
+  优惠券模块 · 商品详情 · 领券入口
+  版本: v2.18 | 更新: 2026-06-22
+  关联PRD: §11.5商品详情领券
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>工业品商城 - 商品详情（优惠券）</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background: #F5F5F5;
+      min-height: 100vh;
+    }
+    .phone-frame {
+      width: 375px;
+      margin: 0 auto;
+      background: #F5F5F5;
+      min-height: 100vh;
+      position: relative;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .top-nav {
+      position: fixed;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 375px;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      z-index: 100;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .top-nav-icon { font-size: 24px; color: #333; cursor: pointer; }
+    .top-nav-title { font-size: 16px; font-weight: 600; color: #333; }
+    .top-nav-icons { display: flex; gap: 16px; }
+    .top-nav-icons svg { width: 22px; height: 22px; stroke: #333; fill: none; stroke-width: 2; }
+    .content { padding-top: 48px; padding-bottom: 80px; }
+    .swiper {
+      height: 320px;
+      background: linear-gradient(135deg, #E8F0FF, #CCE0FF);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .swiper img { width: 100%; height: 100%; object-fit: cover; }
+    .swiper-indicator { position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; }
+    .swiper-dot { width: 6px; height: 6px; background: rgba(0,0,0,0.2); border-radius: 50%; }
+    .swiper-dot.active { width: 16px; border-radius: 3px; background: #3370FF; }
+    .price-section { background: #fff; padding: 14px; }
+    .price-row { display: flex; align-items: baseline; gap: 3px; }
+    .price-symbol { font-size: 14px; font-weight: 600; color: #F02C2C; }
+    .price-value { font-size: 24px; font-weight: 700; color: #F02C2C; }
+    .price-unit { font-size: 12px; color: #999; margin-left: 4px; }
+    .price-original { font-size: 12px; color: #999; text-decoration: line-through; margin-left: 8px; }
+    .goods-info { background: #fff; padding: 0 14px 14px; }
+    .goods-title { font-size: 15px; font-weight: 600; color: #333; line-height: 1.5; margin-bottom: 6px; }
+    .goods-desc { font-size: 12px; color: #999; line-height: 1.4; margin-bottom: 10px; }
+    .goods-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .goods-tag { padding: 3px 8px; background: #E8F0FF; color: #3370FF; border-radius: 4px; font-size: 10px; }
+
+    /* 优惠券领取区 */
+    .coupon-section { background: #fff; margin-top: 10px; padding: 14px; }
+    .coupon-section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+    }
+    .coupon-section-label { display: flex; align-items: center; gap: 8px; }
+    .coupon-section-label-icon { font-size: 18px; }
+    .coupon-section-label-text { font-size: 14px; font-weight: 600; color: #333; }
+    .coupon-section-label-tag { font-size: 10px; padding: 2px 8px; background: #FFF2E8; color: #FF6B35; border-radius: 4px; }
+
+    /* 一行显示多张优惠券图标 */
+    .coupon-icons-row { display: flex; gap: 6px; }
+    .coupon-mini-card {
+      width: 52px;
+      height: 32px;
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      flex-shrink: 0;
+    }
+    .coupon-mini-card.available {
+      background: linear-gradient(135deg, #FFF0F0, #FFF5F5);
+      color: #F02C2C;
+    }
+    .coupon-mini-card.gotten {
+      background: #F5F5F5;
+      color: #999;
+    }
+    .coupon-mini-price { font-size: 12px; font-weight: 700; }
+    .coupon-mini-tag { font-size: 8px; }
+
+    .coupon-section-right { display: flex; align-items: center; gap: 4px; font-size: 13px; color: #666; }
+    .coupon-section-count { font-size: 13px; color: #F02C2C; font-weight: 600; }
+
+    .coupon-tip { font-size: 11px; color: #999; padding: 6px 0 0; }
+
+    /* 优惠券弹窗 */
+    .coupon-modal-mask {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 299;
+    }
+    .coupon-modal-mask.show { display: block; }
+    .coupon-modal {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 335px;
+      background: #fff;
+      border-radius: 12px;
+      z-index: 300;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    }
+    .coupon-modal.show { display: block; }
+    .coupon-modal-header {
+      padding: 16px;
+      text-align: center;
+      border-bottom: 1px solid #F0F0F0;
+      position: relative;
+    }
+    .coupon-modal-title { font-size: 16px; font-weight: 600; color: #333; }
+    .coupon-modal-close {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 20px;
+      color: #999;
+      cursor: pointer;
+    }
+    .coupon-modal-content {
+      max-height: 400px;
+      overflow-y: auto;
+      padding: 12px 16px;
+    }
+    .coupon-modal-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid #F0F0F0;
+    }
+    .coupon-modal-item:last-child { border-bottom: none; }
+    .coupon-modal-left {
+      width: 56px;
+      flex-shrink: 0;
+      background: linear-gradient(135deg, #FFF0F0, #FFF5F5);
+      border-radius: 6px;
+      padding: 6px 4px;
+      text-align: center;
+    }
+    .coupon-modal-price { font-size: 16px; font-weight: 700; color: #F02C2C; }
+    .coupon-modal-condition { font-size: 10px; color: #999; }
+    .coupon-modal-info { flex: 1; }
+    .coupon-modal-name { font-size: 14px; font-weight: 600; color: #333; margin-bottom: 2px; }
+    .coupon-modal-scope { font-size: 12px; color: #666; margin-bottom: 2px; }
+    .coupon-modal-valid { font-size: 11px; color: #999; }
+    .coupon-modal-action { flex-shrink: 0; }
+    .btn-get {
+      padding: 6px 14px;
+      background: linear-gradient(90deg, #FF6B35, #F02C2C);
+      color: #fff;
+      border-radius: 14px;
+      font-size: 12px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(240,44,44,0.2);
+    }
+    .btn-gotten { padding: 6px 14px; background: #F0FFF0; color: #52C41A; border-radius: 14px; font-size: 12px; border: 1px solid #B7EB8F; }
+    .btn-gouse { padding: 6px 14px; background: linear-gradient(135deg, #FF6B35, #F02C2C); color: #fff; border-radius: 14px; font-size: 12px; font-weight: 600; border: none; cursor: pointer; box-shadow: 0 2px 8px rgba(240,44,44,0.25); }
+    .coupon-modal-tip {
+      padding: 10px 16px;
+      background: #FFF9E6;
+      font-size: 12px;
+      color: #FF6B35;
+      border-top: 1px solid #FFE4CC;
+    }
+
+    .address-section { background: #fff; margin-top: 10px; padding: 14px; cursor: pointer; }
+    .address-row { display: flex; align-items: flex-start; gap: 8px; }
+    .address-label { font-size: 13px; color: #999; flex-shrink: 0; }
+    .address-content { flex: 1; }
+    .address-name { font-size: 13px; color: #333; margin-bottom: 2px; }
+    .address-detail { font-size: 12px; color: #666; }
+    .address-arrow { color: #ccc; font-size: 18px; }
+    .payment-section { background: #fff; margin-top: 1px; padding: 14px; }
+    .payment-label { font-size: 13px; color: #999; margin-bottom: 10px; }
+    .payment-options { display: flex; gap: 8px; }
+    .payment-item { padding: 8px 12px; border: 1px solid #E5E5E5; border-radius: 6px; font-size: 12px; color: #666; }
+    .payment-item.selected { border-color: #3370FF; background: #E8F0FF; color: #3370FF; }
+    .sku-section { background: #fff; margin-top: 1px; padding: 14px; cursor: pointer; }
+    .sku-row-click { display: flex; justify-content: space-between; align-items: center; }
+    .sku-label { font-size: 13px; color: #999; }
+    .sku-value { font-size: 13px; color: #666; display: flex; align-items: center; gap: 4px; }
+    .sku-value .arrow { color: #ccc; }
+    .shop-section { background: #fff; margin-top: 10px; padding: 14px; display: flex; align-items: center; gap: 12px; }
+    .shop-icon { width: 44px; height: 44px; background: linear-gradient(135deg, #E8F0FF, #CCE0FF); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+    .shop-icon svg { width: 22px; height: 22px; stroke: #3370FF; fill: none; stroke-width: 1.5; }
+    .shop-info { flex: 1; }
+    .shop-name { font-size: 14px; font-weight: 600; color: #333; margin-bottom: 2px; }
+    .shop-desc { font-size: 11px; color: #999; }
+    .detail-section { background: #fff; margin-top: 10px; padding: 14px; }
+    .detail-title { font-size: 14px; font-weight: 600; color: #333; margin-bottom: 10px; }
+    .detail-params { display: flex; flex-direction: column; gap: 8px; }
+    .detail-param { display: flex; }
+    .param-label { width: 70px; font-size: 12px; color: #999; flex-shrink: 0; }
+    .param-value { flex: 1; font-size: 12px; color: #333; }
+
+    /* 底部操作栏 */
+    .action-bar {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 375px;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 12px;
+      padding-bottom: calc(10px + env(safe-area-inset-bottom));
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
+      z-index: 100;
+    }
+    .action-icons { display: flex; gap: 2px; }
+    .action-icon-item { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 14px; cursor: pointer; }
+    .action-icon-bg { width: 36px; height: 36px; background: #E8F0FF; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .action-icon-item svg { width: 20px; height: 20px; stroke: #3370FF; fill: none; stroke-width: 1.8; }
+    .action-icon-text { font-size: 10px; color: #666; }
+    .action-btn { flex: 1; }
+    .btn-split { display: flex; width: 100%; gap: 8px; }
+    .btn-cart, .btn-buy { flex: 1; padding: 13px 0; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; text-align: center; white-space: nowrap; }
+    .btn-cart { background: #fff; color: #F02C2C; border: 1.5px solid #F02C2C; cursor: pointer; }
+    .btn-buy { background: linear-gradient(90deg, #FF6B35, #F02C2C); color: #fff; cursor: pointer; box-shadow: 0 3px 8px rgba(240,44,44,0.25); }
+
+    .toast {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0,0,0,0.75);
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      z-index: 9999;
+      pointer-events: none;
+      animation: fadeIn 0.2s;
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="top-nav">
+      <div class="top-nav-icon">‹</div>
+      <div class="top-nav-title">商品详情</div>
+      <div class="top-nav-icons">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/></svg>
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/></svg>
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/></svg>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="swiper">
+        <img src="https://picsum.photos/375/320?random=50" alt="">
+        <div class="swiper-indicator">
+          <span class="swiper-dot active"></span>
+          <span class="swiper-dot"></span>
+          <span class="swiper-dot"></span>
+        </div>
+      </div>
+
+      <div class="price-section">
+        <div class="price-row">
+          <span class="price-symbol">¥</span>
+          <span class="price-value">81.40</span>
+          <span class="price-unit">/个</span>
+          <span class="price-original">¥98.00</span>
+        </div>
+      </div>
+
+      <div class="goods-info">
+        <div class="goods-title">工业品商城刀入子 CCAE-JCD-D10-L16-PC2-W2</div>
+        <div class="goods-desc">精密机械加工专用 · 高硬度合金钢 · 进口材质</div>
+        <div class="goods-tags">
+          <span class="goods-tag">品质保障</span>
+          <span class="goods-tag">一件包邮</span>
+          <span class="goods-tag">急速发货</span>
+        </div>
+      </div>
+
+      <!-- 优惠券领取区 -->
+      <div class="coupon-section">
+        <div class="coupon-section-header" onclick="showCouponModal()">
+          <div class="coupon-section-label">
+            <span class="coupon-section-label-icon">🎫</span>
+            <span class="coupon-section-label-text">领券</span>
+            <span class="coupon-section-label-tag">限时</span>
+            <!-- 一行显示多张优惠券图标 -->
+            <div class="coupon-icons-row">
+              <span class="coupon-mini-card gotten">
+                <span class="coupon-mini-price">¥50</span>
+                <span class="coupon-mini-tag">已领</span>
+              </span>
+              <span class="coupon-mini-card available">
+                <span class="coupon-mini-price">¥20</span>
+                <span class="coupon-mini-tag">可领</span>
+              </span>
+              <span class="coupon-mini-card available">
+                <span class="coupon-mini-price">¥10</span>
+                <span class="coupon-mini-tag">可领</span>
+              </span>
+            </div>
+          </div>
+          <div class="coupon-section-right">
+            <span class="coupon-section-count">可领3张</span>
+            <span>›</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 优惠券弹窗 -->
+      <div class="coupon-modal-mask" id="couponMask" onclick="hideCouponModal()"></div>
+      <div class="coupon-modal" id="couponModal">
+        <div class="coupon-modal-header">
+          <span class="coupon-modal-title">优惠券</span>
+          <span class="coupon-modal-close" onclick="hideCouponModal()">×</span>
+        </div>
+        <div class="coupon-modal-content">
+          <div class="coupon-modal-item">
+            <div class="coupon-modal-left">
+              <div class="coupon-modal-price">¥50</div>
+              <div class="coupon-modal-condition">满500可用</div>
+            </div>
+            <div class="coupon-modal-info">
+              <div class="coupon-modal-name">满500减50</div>
+              <div class="coupon-modal-scope">全场通用</div>
+              <div class="coupon-modal-valid">有效期至2026-06-30</div>
+            </div>
+            <div class="coupon-modal-action">
+              <button class="btn-gouse" onclick="location.href='v2.0-WX-11优惠券去使用商品列表.html'">去使用 →</button>
+            </div>
+          </div>
+          <div class="coupon-modal-item">
+            <div class="coupon-modal-left">
+              <div class="coupon-modal-price">¥20</div>
+              <div class="coupon-modal-condition">满200可用</div>
+            </div>
+            <div class="coupon-modal-info">
+              <div class="coupon-modal-name">满200减20 新客专享</div>
+              <div class="coupon-modal-scope">全场通用</div>
+              <div class="coupon-modal-valid">有效期至2026-06-30</div>
+            </div>
+            <div class="coupon-modal-action">
+              <button class="btn-get" onclick="claimCoupon(event)">立即领取</button>
+            </div>
+          </div>
+          <div class="coupon-modal-item">
+            <div class="coupon-modal-left">
+              <div class="coupon-modal-price">¥10</div>
+              <div class="coupon-modal-condition">满100可用</div>
+            </div>
+            <div class="coupon-modal-info">
+              <div class="coupon-modal-name">满100减10</div>
+              <div class="coupon-modal-scope">限品类</div>
+              <div class="coupon-modal-valid">有效期至2026-06-15</div>
+            </div>
+            <div class="coupon-modal-action">
+              <button class="btn-get" onclick="claimCoupon(event)">立即领取</button>
+            </div>
+          </div>
+          <div class="coupon-modal-item">
+            <div class="coupon-modal-left" style="background:linear-gradient(135deg,#FFF0F0,#FFF5F5);">
+              <div class="coupon-modal-price">8</div>
+              <div class="coupon-modal-condition">折</div>
+            </div>
+            <div class="coupon-modal-info">
+              <div class="coupon-modal-name">限时8折券</div>
+              <div class="coupon-modal-scope">限品类：模具钢</div>
+              <div class="coupon-modal-valid">有效期至2026-06-20</div>
+            </div>
+            <div class="coupon-modal-action">
+              <button class="btn-get" onclick="claimCoupon(event)">立即领取</button>
+            </div>
+          </div>
+        </div>
+        <div class="coupon-modal-tip">● 限时折扣商品不可使用优惠券</div>
+      </div>
+
+      <div class="address-section">
+        <div class="address-row">
+          <div class="address-label">收货地址</div>
+          <div class="address-content">
+            <div class="address-name">张先生 138****9012</div>
+            <div class="address-detail">四川省成都市武侯区天府大道中段88号1栋1502室</div>
+          </div>
+          <div class="address-arrow">›</div>
+        </div>
+      </div>
+
+      <div class="payment-section">
+        <div class="payment-label">支付方式</div>
+        <div class="payment-options">
+          <div class="payment-item selected">线下转账</div>
+          <div class="payment-item">账期支付</div>
+          <div class="payment-item">在线支付</div>
+        </div>
+      </div>
+
+      <div class="sku-section">
+        <div class="sku-row-click">
+          <div class="sku-label">已选</div>
+          <div class="sku-value"><span>规格: CCAE-JCD-D10-L16-PC2-W2</span><span class="arrow">›</span></div>
+        </div>
+      </div>
+
+      <div class="shop-section">
+        <div class="shop-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+        <div class="shop-info">
+          <div class="shop-name">恒锐刀入子旗舰店</div>
+          <div class="shop-desc">刀入子 · 导柱组件 · 模具配件</div>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <div class="detail-title">商品详情</div>
+        <div class="detail-params">
+          <div class="detail-param"><div class="param-label">材质</div><div class="param-value">高硬度合金钢</div></div>
+          <div class="detail-param"><div class="param-label">型号</div><div class="param-value">CCAE-JCD-D10-L16-PC2-W2</div></div>
+          <div class="detail-param"><div class="param-label">规格</div><div class="param-value">直径10mm × 长度16mm</div></div>
+          <div class="detail-param"><div class="param-label">品牌</div><div class="param-value">工业品商城</div></div>
+        </div>
+        <div style="margin-top:12px;height:200px;background:linear-gradient(135deg,#E8F0FF,#CCE0FF);border-radius:8px;display:flex;align-items:center;justify-content:center;">
+          <img src="https://picsum.photos/375/200?random=51" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">
+        </div>
+      </div>
+    </div>
+
+    <!-- 底部操作栏 - 包含首页、客服、购物车三个图标 -->
+    <div class="action-bar">
+      <div class="action-icons">
+        <div class="action-icon-item">
+          <div class="action-icon-bg"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></div>
+          <span class="action-icon-text">首页</span>
+        </div>
+        <div class="action-icon-item">
+          <div class="action-icon-bg"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg></div>
+          <span class="action-icon-text">客服</span>
+        </div>
+        <div class="action-icon-item">
+          <div class="action-icon-bg"><svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></div>
+          <span class="action-icon-text">购物车</span>
+        </div>
+      </div>
+      <div class="action-btn">
+        <div class="btn-split">
+          <button class="btn-cart">加入购物车</button>
+          <button class="btn-buy">立即购买</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function showCouponModal() {
+      document.getElementById('couponMask').classList.add('show');
+      document.getElementById('couponModal').classList.add('show');
+    }
+    function hideCouponModal() {
+      document.getElementById('couponMask').classList.remove('show');
+      document.getElementById('couponModal').classList.remove('show');
+    }
+    function claimCoupon(e) {
+      e.stopPropagation();
+      var btn = e.target;
+      btn.textContent = '去使用 →';
+      btn.className = 'btn-gouse';
+      btn.onclick = function() { location.href = 'v2.0-WX-11优惠券去使用商品列表.html'; };
+      // 领券成功Toast
+      var t = document.createElement('div');
+      t.className = 'toast';
+      t.textContent = '领取成功';
+      document.body.appendChild(t);
+      setTimeout(function() { t.remove(); }, 2000);
+    }
+  </script>
+</body>
+</html>

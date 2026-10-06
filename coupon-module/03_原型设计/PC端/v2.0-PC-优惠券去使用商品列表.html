@@ -1,0 +1,456 @@
+<!--
+  优惠券模块 · 优惠券可用商品 · PC端商品列表
+  版本: v2.18 | 更新: 2026-06-22
+  关联PRD: §11.8商品列表页, §11.9券后价展示
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>工业品商城 - 优惠券可用商品</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif; background: #F5F5F5; color: #333; min-height: 100vh; }
+
+    /* ========== 顶部导航 ========== */
+    .top-header { background: #fff; border-bottom: 1px solid #E5E5E5; position: sticky; top: 0; z-index: 100; }
+    .header-main { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; padding: 0 20px; height: 64px; gap: 40px; }
+    .header-logo-img { width: 120px; height: 36px; background: linear-gradient(135deg, #3370FF, #2860E0); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 14px; cursor: pointer; }
+    .header-nav { display: flex; gap: 32px; flex: 1; }
+    .header-nav a { font-size: 14px; color: #666; text-decoration: none; }
+    .header-nav a:hover, .header-nav a.active { color: #3370FF; }
+    .header-user { display: flex; align-items: center; gap: 8px; }
+    .header-avatar { width: 32px; height: 32px; background: #E8F0FF; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .header-back { display: flex; align-items: center; gap: 6px; font-size: 14px; color: #666; cursor: pointer; }
+    .header-back:hover { color: #3370FF; }
+
+    /* ========== 页面主体 ========== */
+    .page-main { max-width: 1200px; margin: 0 auto; padding: 24px 20px; }
+
+    /* ========== 优惠券Banner ========== */
+    .coupon-banner {
+      background: linear-gradient(135deg, #FF6B35, #F02C2C);
+      border-radius: 16px;
+      padding: 24px 28px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 16px rgba(240,44,44,0.25);
+      position: relative;
+      overflow: hidden;
+    }
+    .coupon-banner::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 200px;
+      height: 100%;
+      background: linear-gradient(135deg, transparent, rgba(255,255,255,0.1));
+    }
+    .coupon-left {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-width: 100px;
+      padding-right: 24px;
+      border-right: 1px dashed rgba(255,255,255,0.5);
+    }
+    .coupon-value { color: #fff; font-size: 36px; font-weight: 700; line-height: 1; }
+    .coupon-value small { font-size: 16px; font-weight: 600; }
+    .coupon-desc { color: rgba(255,255,255,0.9); font-size: 13px; margin-top: 6px; }
+    .coupon-right { flex: 1; }
+    .coupon-name { color: #fff; font-size: 18px; font-weight: 600; margin-bottom: 6px; }
+    .coupon-rule { color: rgba(255,255,255,0.85); font-size: 14px; margin-bottom: 4px; }
+    .coupon-date { color: rgba(255,255,255,0.75); font-size: 13px; }
+    .coupon-badge {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: rgba(255,255,255,0.2);
+      color: #fff;
+      font-size: 12px;
+      padding: 4px 16px 6px;
+      border-bottom-left-radius: 12px;
+    }
+
+    /* ========== 筛选栏 ========== */
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      background: #fff;
+      border-radius: 12px;
+      padding: 0 16px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .filter-item {
+      padding: 16px 20px;
+      font-size: 14px;
+      color: #666;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      border-bottom: 2px solid transparent;
+    }
+    .filter-item:hover { color: #333; }
+    .filter-item.active { color: #3370FF; border-bottom-color: #3370FF; font-weight: 600; }
+    .filter-arrow { font-size: 10px; transition: transform 0.2s; }
+    .filter-item.active .filter-arrow { transform: rotate(180deg); }
+    .filter-spacer { flex: 1; }
+    .filter-count { font-size: 12px; color: #999; }
+
+    /* ========== 商品网格 ========== */
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+    .product-card {
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      transition: box-shadow 0.2s;
+      cursor: pointer;
+    }
+    .product-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+    .product-img-wrap {
+      height: 180px;
+      background: linear-gradient(135deg, #f0f0f0, #e8e8e8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .product-img { width: 100%; height: 100%; object-fit: cover; }
+    .product-img-placeholder { color: #ccc; font-size: 14px; }
+    .product-info { padding: 14px; }
+    .product-name { font-size: 14px; font-weight: 600; color: #333; line-height: 1.4; margin-bottom: 6px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+    .product-sub { font-size: 12px; color: #999; margin-bottom: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .product-bottom { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+    .product-price-row { display: flex; align-items: baseline; gap: 8px; }
+    .product-price-original { color: #ccc; font-size: 13px; text-decoration: line-through; }
+    .product-price { color: #F02C2C; font-size: 18px; font-weight: 700; }
+    .product-price small { font-size: 12px; font-weight: 600; }
+    .product-coupon-tag { display: inline-block; background: linear-gradient(135deg, #FFF0E8, #FFF5F0); border: 1px solid #FFD4C4; color: #F02C2C; font-size: 12px; padding: 3px 10px; border-radius: 4px; font-weight: 500; margin-top: 4px; }
+    .product-add-cart {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #FF6B35, #F02C2C);
+      color: #fff;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(240,44,44,0.3);
+    }
+    .product-add-cart:hover { transform: scale(1.05); }
+
+    /* ========== 加载更多 ========== */
+    .load-more {
+      text-align: center;
+      padding: 32px 0;
+    }
+    .load-more-btn {
+      padding: 12px 48px;
+      background: #fff;
+      border: 1px solid #E5E5E5;
+      border-radius: 24px;
+      font-size: 14px;
+      color: #666;
+      cursor: pointer;
+    }
+    .load-more-btn:hover { border-color: #3370FF; color: #3370FF; }
+    .no-more { text-align: center; padding: 24px 0; color: #999; font-size: 14px; }
+
+    /* ========== 底部 ========== */
+    .footer { text-align: center; padding: 32px 0; color: #999; font-size: 12px; }
+
+    /* ========== Toast ========== */
+    .toast {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0,0,0,0.75);
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      z-index: 1000;
+      animation: fadeIn 0.3s;
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  </style>
+</head>
+<body>
+
+  <!-- 顶部导航 -->
+  <div class="top-header">
+    <div class="header-main">
+      <div class="header-back" onclick="history.back()">← 返回</div>
+      <div class="header-logo-img">工业品商城</div>
+      <nav class="header-nav">
+        <a href="#">首页</a>
+        <a href="#">分类</a>
+        <a href="#">商品列表</a>
+        <a href="#" class="active">优惠券</a>
+      </nav>
+      <div class="header-user">
+        <div class="header-avatar">👤</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 页面主体 -->
+  <div class="page-main">
+
+    <!-- 优惠券Banner -->
+    <div class="coupon-banner">
+      <div class="coupon-badge">限时优惠</div>
+      <div class="coupon-left">
+        <div class="coupon-value">¥<small>50</small></div>
+        <div class="coupon-desc">满500可用</div>
+      </div>
+      <div class="coupon-right">
+        <div class="coupon-name">新人专享优惠券</div>
+        <div class="coupon-rule">适用于：全场商品</div>
+        <div class="coupon-date">有效期至 2026-06-30</div>
+      </div>
+    </div>
+
+    <!-- 筛选栏 -->
+    <div class="filter-bar">
+      <div class="filter-item active" id="filterComprehensive">
+        综合
+        <span class="filter-arrow">▼</span>
+      </div>
+      <div class="filter-item" id="filterSales">
+        销量
+        <span class="filter-arrow">▼</span>
+      </div>
+      <div class="filter-item" id="filterPrice">
+        价格
+        <span class="filter-arrow">▼</span>
+      </div>
+      <div class="filter-item" id="filterNew">
+        最新
+        <span class="filter-arrow">▼</span>
+      </div>
+      <div class="filter-spacer"></div>
+      <div class="filter-count">共 86 件商品</div>
+    </div>
+
+    <!-- 商品网格（2026-08-17按PRD §11.8补充：本列表需过滤掉限时折扣商品——限时折扣商品不可用优惠券（§7.2），
+         如果这里不过滤，用户会从这个页面加购一件实际用不了券的商品，到确认订单页才发现，容易被当bug投诉。
+         下方展示的8个商品均为普通商品，均已排除限时折扣类型 -->
+    <div class="product-grid">
+
+      <!-- 商品1 -->
+      <div class="product-card">
+        <div class="product-img-wrap">
+          <img class="product-img" https://placehold.co/400x300/FFF2E8/FF6B35?text=模具标准件 alt="商品图" onerror="this.style.display='none'">
+        </div>
+        <div class="product-info">
+          <div class="product-name">工业品商城定位键QTDW201-20-45精密定位键</div>
+          <div class="product-sub">规格：20×45mm · 材质：钢</div>
+          <div class="product-bottom">
+            <div class="product-price-row">
+              <span class="product-price-original">¥2699.00</span>
+              <div class="product-price">¥<small>2649</small>.00</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span class="product-coupon-tag">用券省¥50</span>
+              <div class="product-add-cart" onclick="addCart(this)">+</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 商品2 -->
+      <div class="product-card">
+        <div class="product-img-wrap">
+          <img class="product-img" https://placehold.co/400x300/F0FFF0/52C41A?text=弹簧定位销 alt="商品图" onerror="this.style.display='none'">
+        </div>
+        <div class="product-info">
+          <div class="product-name">工业品商城精密冲压模具标准件套装</div>
+          <div class="product-sub">型号：QTDW系列</div>
+          <div class="product-bottom">
+            <div class="product-price-row">
+              <span class="product-price-original">¥1580.00</span>
+              <div class="product-price">¥<small>1530</small>.00</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span class="product-coupon-tag">用券省¥50</span>
+              <div class="product-add-cart" onclick="addCart(this)">+</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 商品3 -->
+      <div class="product-card">
+        <div class="product-img-wrap">
+          <img class="product-img" https://placehold.co/400x300/FFF9E6/FF6B35?text=导柱导套 alt="商品图" onerror="this.style.display='none'">
+        </div>
+        <div class="product-info">
+          <div class="product-name">高强度弹簧定位销</div>
+          <div class="product-sub">材质：弹簧钢 · 规格多样</div>
+          <div class="product-bottom">
+            <div class="product-price-row">
+              <div class="product-price">¥<small>89</small>.00</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span class="product-coupon-tag" style="background:#F5F5F5;border:#E5E5E5;color:#999;">不满足门槛</span>
+              <div class="product-add-cart" onclick="addCart(this)">+</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 商品4 -->
+      <div class="product-card">
+        <div class="product-img-wrap">
+          <img class="product-img" https://placehold.co/400x300/E8F0FF/2860E0?text=不锈钢配件 alt="商品图" onerror="this.style.display='none'">
+        </div>
+        <div class="product-info">
+          <div class="product-name">精密级模具导柱导套组件</div>
+          <div class="product-sub">型号：TGR20 · 品牌：工业品商城</div>
+          <div class="product-bottom">
+            <div class="product-price-row">
+              <span class="product-price-original">¥3280.00</span>
+              <div class="product-price">¥<small>3230</small>.00</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span class="product-coupon-tag">用券省¥50</span>
+              <div class="product-add-cart" onclick="addCart(this)">+</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 商品5 -->
+      <div class="product-card">
+        <div class="product-img-wrap">
+          <img class="product-img" https://placehold.co/400x300/F5F5F5/999?text=抛光工具 alt="商品图" onerror="this.style.display='none'">
+        </div>
+        <div class="product-info">
+          <div class="product-name">工业品商城不锈钢模具配件</div>
+          <div class="product-sub">SUS304材质 · 耐腐蚀</div>
+          <div class="product-bottom">
+            <div class="product-price-row">
+              <div class="product-price">¥<small>456</small>.00</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span class="product-coupon-tag" style="background:#F5F5F5;border:#E5E5E5;color:#999;">不满足门槛</span>
+              <div class="product-add-cart" onclick="addCart(this)">+</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 商品6 -->
+      <div class="product-card">
+        <div class="product-img-wrap">
+          <img class="product-img" https://placehold.co/400x300/F0FFF0/52C41A?text=测量工具 alt="商品图" onerror="this.style.display='none'">
+        </div>
+        <div class="product-info">
+          <div class="product-name">模具抛光工具套装</div>
+          <div class="product-sub">专业级抛光工具</div>
+          <div class="product-bottom">
+            <div class="product-price-row">
+              <div class="product-price">¥<small>299</small>.00</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span class="product-coupon-tag" style="background:#F5F5F5;border:#E5E5E5;color:#999;">不满足门槛</span>
+              <div class="product-add-cart" onclick="addCart(this)">+</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 商品7 -->
+      <div class="product-card">
+        <div class="product-img-wrap">
+          <img class="product-img" https://placehold.co/400x300/FFF0F0/F02C2C?text=氮化零件 alt="商品图" onerror="this.style.display='none'">
+        </div>
+        <div class="product-info">
+          <div class="product-name">精密测量工具游标卡尺</div>
+          <div class="product-sub">0-150mm · 精度0.02mm</div>
+          <div class="product-bottom">
+            <div class="product-price-row">
+              <div class="product-price">¥<small>168</small>.00</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span class="product-coupon-tag" style="background:#F5F5F5;border:#E5E5E5;color:#999;">不满足门槛</span>
+              <div class="product-add-cart" onclick="addCart(this)">+</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 商品8 -->
+      <div class="product-card">
+        <div class="product-img-wrap">
+          <img class="product-img" src="https://placehold.co/400x300/E8F0FF/3370FF?text=定位键" alt="商品图" onerror="this.style.display='none'">
+        </div>
+        <div class="product-info">
+          <div class="product-name">模具氮化处理零件</div>
+          <div class="product-sub">氮化层深度0.3-0.5mm</div>
+          <div class="product-bottom">
+            <div class="product-price-row">
+              <div class="product-price">¥<small>880</small>.00</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span class="product-coupon-tag" style="background:#F5F5F5;border:#E5E5E5;color:#999;">不满足门槛</span>
+              <div class="product-add-cart" onclick="addCart(this)">+</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 加载更多 -->
+    <div class="load-more">
+      <button class="load-more-btn" onclick="this.style.display='none';document.getElementById('noMore').style.display='block'">加载更多</button>
+    </div>
+    <div class="no-more" id="noMore" style="display:none">— 已经到底了 —</div>
+
+    <!-- 底部 -->
+    <div class="footer">工业品商城 · 工业品商城 © 2026</div>
+  </div>
+
+  <script>
+    // 筛选Tab点击
+    document.querySelectorAll('.filter-item').forEach(item => {
+      item.addEventListener('click', function() {
+        if (this.id === 'filterPrice') {
+          // 价格排序切换
+          this.classList.toggle('active');
+          return;
+        }
+        document.querySelectorAll('.filter-item').forEach(i => i.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+
+    // 加入购物车
+    function addCart(btn) {
+      var t = document.createElement('div');
+      t.className = 'toast';
+      t.textContent = '已加入购物车';
+      document.body.appendChild(t);
+      setTimeout(function() { t.remove(); }, 1500);
+    }
+  </script>
+</body>
+</html>

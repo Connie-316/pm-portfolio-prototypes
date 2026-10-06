@@ -1,0 +1,1100 @@
+<!--
+  优惠券模块 · 商家后台 · 优惠券管理(6合1)
+  版本: v2.18 | 更新: 2026-06-22
+  关联PRD: §13商家端功能
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1920">
+  <title>商家后台 - 优惠券管理</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif; background: #F0F2F5; color: #333; min-height: 100vh; font-size: 14px; }
+
+    .top-header { background: #001529; position: fixed; top: 0; left: 0; right: 0; height: 56px; z-index: 100; display: flex; align-items: center; padding: 0 24px; }
+    .top-logo { color: #fff; font-size: 18px; font-weight: 700; margin-right: 48px; white-space: nowrap; letter-spacing: 1px; }
+    .top-nav { display: flex; gap: 32px; flex: 1; }
+    .top-nav a { color: rgba(255,255,255,0.65); font-size: 14px; text-decoration: none; transition: color 0.3s; }
+    .top-nav a:hover, .top-nav a.active { color: #fff; }
+    .top-user { color: rgba(255,255,255,0.65); font-size: 14px; cursor: pointer; }
+    .top-user:hover { color: #fff; }
+
+    .main-layout { display: flex; padding-top: 56px; min-height: 100vh; }
+
+    .sidebar { width: 220px; background: #fff; position: fixed; top: 56px; bottom: 0; left: 0; border-right: 1px solid #E5E5E5; overflow-y: auto; z-index: 50; }
+    .sidebar-section { padding: 16px 0; border-bottom: 1px solid #E5E5E5; }
+    .sidebar-section:last-child { border-bottom: none; }
+    .sidebar-title { font-size: 12px; color: #999; padding: 0 20px 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .sidebar-item { padding: 10px 20px; font-size: 14px; color: #666; cursor: pointer; border-left: 3px solid transparent; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
+    .sidebar-item:hover { background: #F5F5F5; color: #333; }
+    .sidebar-item.active { background: #E8F0FF; color: #3370FF; border-left-color: #3370FF; font-weight: 600; }
+    .sidebar-item .icon { width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; }
+
+    .content-area { flex: 1; margin-left: 220px; padding: 24px 32px; max-width: calc(100vw - 220px); }
+
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .page-title { font-size: 20px; font-weight: 700; color: #333; display: flex; align-items: center; gap: 8px; }
+
+    .btn-primary { padding: 9px 24px; background: linear-gradient(135deg, #3370FF 0%, #2255E0 100%); color: #fff; border-radius: 6px; font-size: 14px; border: none; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 6px rgba(51,112,255,0.3); }
+    .btn-primary:hover { background: linear-gradient(135deg, #4B82FF 0%, #3370FF 100%); box-shadow: 0 4px 12px rgba(51,112,255,0.4); }
+    .btn-default { padding: 9px 24px; background: #fff; color: #666; border-radius: 6px; font-size: 14px; border: 1px solid #D9D9D9; cursor: pointer; transition: all 0.2s; }
+    .btn-default:hover { color: #3370FF; border-color: #3370FF; }
+    .btn-danger { padding: 9px 24px; background: #fff; color: #F5222D; border-radius: 6px; font-size: 14px; border: 1px solid #F5222D; cursor: pointer; transition: all 0.2s; }
+    .btn-danger:hover { background: #FFF1F0; }
+    .btn-sm { padding: 5px 12px; font-size: 12px; border-radius: 4px; border: none; cursor: pointer; transition: all 0.2s; }
+    .btn-sm-primary { background: #3370FF; color: #fff; }
+    .btn-sm-primary:hover { background: #2860E0; }
+    .btn-sm-default { background: #fff; color: #666; border: 1px solid #D9D9D9; }
+    .btn-sm-default:hover { color: #3370FF; border-color: #3370FF; }
+
+    .filter-card { background: #fff; border-radius: 8px; padding: 20px 24px; margin-bottom: 16px; display: flex; gap: 16px; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.06); flex-wrap: wrap; }
+    .filter-item { display: flex; align-items: center; gap: 8px; }
+    .filter-label { font-size: 14px; color: #666; white-space: nowrap; }
+    .filter-select { padding: 8px 12px; border: 1px solid #D9D9D9; border-radius: 4px; font-size: 14px; min-width: 130px; background: #fff; }
+    .filter-input { padding: 8px 12px; border: 1px solid #D9D9D9; border-radius: 4px; font-size: 14px; width: 200px; }
+    .filter-search { padding: 8px 20px; background: #3370FF; color: #fff; border-radius: 4px; font-size: 14px; border: none; cursor: pointer; transition: background 0.2s; }
+    .filter-search:hover { background: #4B82FF; }
+
+    .data-card { background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow: hidden; }
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th { background: #FAFAFA; padding: 14px 20px; font-size: 13px; color: #666; font-weight: 600; text-align: left; border-bottom: 1px solid #E5E5E5; white-space: nowrap; }
+    .data-table td { padding: 14px 20px; font-size: 13px; color: #333; border-bottom: 1px solid #E5E5E5; }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: #FAFAFA; }
+    .data-table tr:hover td:first-child { border-top-left-radius: 6px; border-bottom-left-radius: 6px; }
+    .data-table tr:hover td:last-child { border-top-right-radius: 6px; border-bottom-right-radius: 6px; }
+
+    .status-tag { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 12px; font-weight: 500; }
+    /* 2026-08-17按PRD §13.1/§13.5/§13.6/§16.1补充：兑换码是第三期功能，本期不验收，加视觉标记跟第一期功能区分开 */
+    .phase3-tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; background: #FFF7E6; color: #FA8C16; border: 1px solid #FFD591; margin-left: 6px; }
+    .status-online { background: #F6FFED; color: #52C41A; border: 1px solid #B7EB8F; }
+    .status-offline { background: #F5F5F5; color: #999; border: 1px solid #D9D9D9; }
+    .status-used { background: #FFF1F0; color: #F5222D; border: 1px solid #FFCCC7; }
+    .status-expired { background: #FFEDCD; color: #FA8C16; border: 1px solid #FFD591; }
+    .status-unexchange { background: #F6FFED; color: #52C41A; border: 1px solid #B7EB8F; }
+
+    .action-link { color: #3370FF; cursor: pointer; margin-right: 16px; font-size: 13px; text-decoration: none; }
+    .action-link:hover { text-decoration: underline; }
+    .action-link.danger { color: #F5222D; }
+
+    .pagination { display: flex; justify-content: flex-end; align-items: center; gap: 8px; padding: 16px 20px; }
+    .page-btn { min-width: 36px; height: 36px; padding: 0 10px; background: #fff; border: 1px solid #D9D9D9; border-radius: 4px; font-size: 13px; color: #666; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+    .page-btn:hover { border-color: #3370FF; color: #3370FF; }
+    .page-btn.active { background: #3370FF; color: #fff; border-color: #3370FF; }
+    .page-btn.disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .form-card { background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow: hidden; }
+    .form-section { padding: 24px 32px; border-bottom: 1px solid #E5E5E5; }
+    .form-section:last-child { border-bottom: none; }
+    .form-section-title { font-size: 16px; font-weight: 700; color: #333; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid #E5E5E5; display: flex; align-items: center; gap: 8px; }
+    .form-section-title .required { color: #F5222D; }
+
+    .form-row { display: flex; gap: 24px; margin-bottom: 20px; }
+    .form-row:last-child { margin-bottom: 0; }
+    .form-group { flex: 1; }
+    .form-group label { display: block; font-size: 14px; color: #333; margin-bottom: 8px; font-weight: 500; }
+    .form-group label .required { color: #F5222D; margin-right: 4px; }
+    .form-input { width: 100%; padding: 10px 14px; border: 1px solid #D9D9D9; border-radius: 4px; font-size: 14px; transition: border-color 0.2s; }
+    .form-input:focus { outline: none; border-color: #3370FF; box-shadow: 0 0 0 2px rgba(51,112,255,0.1); }
+    .form-input:disabled { background: #F5F5F5; color: #999; }
+    .form-input.error { border-color: #F5222D; }
+    .form-hint { font-size: 12px; color: #999; margin-top: 4px; }
+    .form-hint.error { color: #F5222D; }
+
+    .form-radio-group { display: flex; gap: 24px; flex-wrap: wrap; }
+    .form-radio-group label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; color: #333; }
+    .form-radio-group input[type="radio"] { width: 16px; height: 16px; accent-color: #3370FF; }
+    .form-checkbox-group { display: flex; gap: 24px; flex-wrap: wrap; }
+    .form-checkbox-group label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; color: #333; }
+    .form-checkbox-group input[type="checkbox"] { width: 16px; height: 16px; accent-color: #3370FF; }
+
+    .form-actions { padding: 24px 32px; background: #FAFAFA; border-top: 1px solid #E5E5E5; display: flex; gap: 12px; }
+
+    .alert-warning { background: #FFFBE6; border: 1px solid #FFE58F; padding: 14px 16px; border-radius: 6px; margin-bottom: 20px; display: flex; align-items: flex-start; gap: 10px; }
+    .alert-warning .icon { color: #FAAD14; font-size: 16px; flex-shrink: 0; }
+    .alert-warning .text { font-size: 13px; color: #AD6800; line-height: 1.5; }
+    .alert-info { background: #E8F0FF; border: 1px solid #ADC6FF; padding: 14px 16px; border-radius: 6px; margin-bottom: 20px; display: flex; align-items: flex-start; gap: 10px; }
+    .alert-info .icon { color: #3370FF; font-size: 16px; flex-shrink: 0; }
+    .alert-info .text { font-size: 13px; color: #333; line-height: 1.5; }
+    .alert-error { background: #FFF1F0; border: 1px solid #FFCCC7; padding: 14px 16px; border-radius: 6px; margin-bottom: 20px; display: flex; align-items: flex-start; gap: 10px; }
+    .alert-error .icon { color: #F5222D; font-size: 16px; flex-shrink: 0; }
+    .alert-error .text { font-size: 13px; color: #F5222D; line-height: 1.5; }
+    .alert-success { background: #F6FFED; border: 1px solid #B7EB8F; padding: 14px 16px; border-radius: 6px; margin-bottom: 20px; display: flex; align-items: flex-start; gap: 10px; }
+    .alert-success .icon { color: #52C41A; font-size: 16px; flex-shrink: 0; }
+    .alert-success .text { font-size: 13px; color: #52C41A; line-height: 1.5; }
+
+    .quota-info { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .quota-info .stat { text-align: center; padding: 8px 16px; background: #F5F5F5; border-radius: 4px; }
+    .quota-info .stat-value { font-size: 18px; font-weight: 700; color: #333; }
+    .quota-info .stat-label { font-size: 12px; color: #999; margin-top: 2px; }
+
+    .copy-source { background: #F5F5F5; padding: 16px; border-radius: 6px; margin-bottom: 20px; }
+    .copy-source-label { font-size: 12px; color: #999; margin-bottom: 4px; }
+    .copy-source-name { font-size: 15px; font-weight: 600; color: #333; }
+
+    .code-tag { font-family: 'Consolas', 'Monaco', monospace; font-size: 13px; color: #3370FF; background: #E8F0FF; padding: 3px 10px; border-radius: 4px; letter-spacing: 1px; }
+
+    .stat-row { display: flex; gap: 24px; margin-left: auto; }
+    .stat-item { text-align: center; min-width: 80px; }
+    .stat-item .value { font-size: 18px; font-weight: 700; color: #333; }
+    .stat-item .label { font-size: 12px; color: #999; margin-top: 2px; }
+
+    /* 优惠类型切换Tab */
+    .type-tab { display: flex; border-bottom: 2px solid #E5E5E5; margin-bottom: 20px; }
+    .type-tab-item { padding: 10px 24px; font-size: 14px; color: #666; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.2s; font-weight: 500; }
+    .type-tab-item:hover { color: #3370FF; }
+    .type-tab-item.active { color: #3370FF; border-bottom-color: #3370FF; font-weight: 600; }
+    .type-content { display: none; }
+    .type-content.active { display: block; }
+
+    /* 平台标签 */
+    .platform-tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; margin-right: 4px; }
+    .platform-pc { background: #E8F0FF; color: #3370FF; }
+    .platform-wx { background: #F6FFED; color: #52C41A; }
+    .platform-all { background: #FFF7E6; color: #FA8C16; }
+  </style>
+</head>
+<body>
+  <div class="top-header">
+    <div class="top-logo">📦 工业品商城 · 商家后台</div>
+    <div class="top-nav">
+      <a href="#">工作台</a>
+      <a href="#">商品管理</a>
+      <a href="#">订单管理</a>
+      <a href="#" class="active">营销管理</a>
+      <a href="#">数据统计</a>
+      <a href="#">设置</a>
+    </div>
+    <div class="top-user">商家：恒锐刀入子旗舰店 ▼</div>
+  </div>
+
+  <div class="main-layout">
+    <div class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-title">营销管理</div>
+        <div class="sidebar-item active" onclick="showSection('list')"><span class="icon">📋</span>优惠券管理</div>
+        <div class="sidebar-item" onclick="showSection('add')"><span class="icon">➕</span>新增优惠券</div>
+        <div class="sidebar-item" onclick="showSection('edit')"><span class="icon">✏️</span>编辑优惠券</div>
+        <div class="sidebar-item" onclick="showSection('copy')"><span class="icon">📄</span>复制优惠券</div>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-title">兑换码 <span class="phase3-tag">第三期</span></div>
+        <div class="sidebar-item" onclick="showSection('code')"><span class="icon">🔑</span>兑换码管理</div>
+        <div class="sidebar-item" onclick="showSection('codedetail')"><span class="icon">📋</span>兑换明细</div>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-title">日志</div>
+        <div class="sidebar-item" onclick="showSection('log')"><span class="icon">📜</span>操作日志</div>
+      </div>
+    </div>
+
+    <div class="content-area">
+
+      <!-- ==================== 列表页 ==================== -->
+      <div class="tab-content active" id="sec-list">
+        <div class="page-header">
+          <div class="page-title">🎫 优惠券管理</div>
+          <button class="btn-primary" onclick="showSection('add')">+ 新增优惠券</button>
+        </div>
+
+        <div class="filter-card">
+          <div class="filter-item"><span class="filter-label">状态</span><select class="filter-select"><option>全部状态</option><option>上架</option><option>下架</option></select></div>
+          <div class="filter-item"><span class="filter-label">类型</span><select class="filter-select"><option>全部类型</option><option>满减券</option><option>折扣券</option></select></div>
+          <div class="filter-item"><span class="filter-label">平台</span><select class="filter-select"><option>全部平台</option><option>PC端</option><option>小程序端</option><option>全部</option></select></div>
+          <div class="filter-item"><input type="text" class="filter-input" placeholder="搜索优惠券名称" id="listSearch"></div>
+          <button class="filter-search" onclick="renderList()">搜索</button>
+        </div>
+
+        <div class="data-card">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>优惠券名称</th>
+                <th>类型</th>
+                <th>优惠内容</th>
+                <th>发行量</th>
+                <th>已发放</th>
+                <th>已领取</th>
+                <th>已使用</th>
+                <th>发放平台</th>
+                <th>有效期</th>
+                <th>状态</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="listTableBody"></tbody>
+          </table>
+          <div class="pagination" id="listPagination"></div>
+        </div>
+      </div>
+
+      <!-- ==================== 新增优惠券 ==================== -->
+      <div class="tab-content" id="sec-add">
+        <div class="page-header"><div class="page-title">➕ 新增优惠券</div></div>
+        <div class="form-card">
+          <div id="addAlert"></div>
+
+          <div class="form-section">
+            <div class="form-section-title"><span class="required">*</span>基本信息</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label><span class="required">*</span>优惠券名称</label>
+                <input type="text" class="form-input" id="add_name" placeholder="请输入优惠券名称，如：满500减50">
+                <div class="form-hint" id="add_name_hint">名称不允许与已有优惠券重复</div>
+              </div>
+              <div class="form-group">
+                <label><span class="required">*</span>优惠类型</label>
+                <div class="type-tab">
+                  <div class="type-tab-item active" data-type="full" onclick="switchCouponType('add','full')">满减券</div>
+                  <div class="type-tab-item" data-type="discount" onclick="switchCouponType('add','discount')">折扣券</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 满减券内容 -->
+            <div class="type-content active" id="add_type_full">
+              <div class="form-row">
+                <div class="form-group">
+                  <label><span class="required">*</span>门槛金额</label>
+                  <input type="text" class="form-input" id="add_threshold_full" placeholder="满X元" value="500">
+                </div>
+                <div class="form-group">
+                  <label><span class="required">*</span>优惠金额</label>
+                  <input type="text" class="form-input" id="add_discount_full" placeholder="减Y元" value="50">
+                </div>
+              </div>
+            </div>
+
+            <!-- 折扣券内容 -->
+            <div class="type-content" id="add_type_discount">
+              <div class="form-row">
+                <div class="form-group">
+                  <label><span class="required">*</span>门槛金额</label>
+                  <input type="text" class="form-input" id="add_threshold_discount" placeholder="满X元" value="300">
+                </div>
+                <div class="form-group">
+                  <label><span class="required">*</span>折扣率</label>
+                  <input type="text" class="form-input" id="add_discount_discount" placeholder="1-9.9折，如8折输入0.8" value="0.8" disabled>
+                  <div class="form-hint">折扣券暂未开放</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label><span class="required">*</span>发行量</label>
+                <input type="text" class="form-input" id="add_quota" placeholder="1~999999" value="1000" style="width:200px;">
+                <div class="form-hint">发行量=N，创建时自动生成N个兑换码</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-section-title"><span class="required">*</span>有效期与平台</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label><span class="required">*</span>有效期类型</label>
+                <div class="form-radio-group">
+                  <label><input type="radio" name="add_validType" value="fixed" checked> 固定日期</label>
+                  <label><input type="radio" name="add_validType" value="dynamic"> 领券后N天生效</label>
+                </div>
+              </div>
+              <div class="form-group">
+                <label><span class="required">*</span>生效时间</label>
+                <input type="text" class="form-input" id="add_startDate" value="2026-06-13 00:00:00">
+              </div>
+              <div class="form-group">
+                <label><span class="required">*</span>失效时间</label>
+                <input type="text" class="form-input" id="add_endDate" value="2026-07-13 23:59:59">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label><span class="required">*</span>适用平台</label>
+                <div class="form-radio-group">
+                  <label><input type="radio" name="add_platform" value="pc" checked> PC端</label>
+                  <label><input type="radio" name="add_platform" value="miniprogram"> 小程序端</label>
+                  <label><input type="radio" name="add_platform" value="all"> 全部</label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-section-title"><span class="required">*</span>适用范围</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label><span class="required">*</span>商品范围</label>
+                <div class="form-radio-group">
+                  <label><input type="radio" name="add_scope" value="all" checked> 全部商品</label>
+                  <label><input type="radio" name="add_scope" value="category"> 指定分类</label>
+                  <label><input type="radio" name="add_scope" value="product"> 指定商品</label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-section-title"><span class="required">*</span>客户范围</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label><span class="required">*</span>发放对象</label>
+                <div class="form-checkbox-group">
+                  <label><input type="checkbox" checked> 全部用户</label>
+                  <label><input type="checkbox"> 已认证用户</label>
+                  <label><input type="checkbox"> 新用户（注册未下单）</label>
+                  <label><input type="checkbox"> 老用户（有完成订单）</label>
+                  <label><input type="checkbox"> 指定客户</label>
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label><span class="required">*</span>每人限领</label>
+                <input type="text" class="form-input" id="add_perLimit" value="1" style="width:100px;">
+                <div class="form-hint">默认1张，每位用户最多领取数量</div>
+              </div>
+              <div class="form-group">
+                <label><span class="required">*</span>每单限用</label>
+                <input type="text" class="form-input" value="1" style="width:100px;" disabled>
+                <div class="form-hint">每单最多使用1张（不可叠加）</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-section-title"><span class="required">*</span>发放方式</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label><span class="required">*</span>领取方式</label>
+                <div class="form-checkbox-group">
+                  <label><input type="checkbox" checked> 手动领取（领券中心）</label>
+                  <label><input type="checkbox"> 自动发放（注册/首单）</label>
+                  <label><input type="checkbox" checked> 兑换码（自动生成）<span class="phase3-tag">第三期</span></label>
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>积分叠加</label>
+                <div class="form-radio-group">
+                  <label><input type="radio" name="add_points" value="yes" checked> 支持同时使用</label>
+                  <label><input type="radio" name="add_points" value="no"> 不可叠加</label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn-primary" onclick="submitAdd()">保存并生成兑换码</button>
+            <button class="btn-default" onclick="showSection('list')">取消</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 编辑优惠券 ==================== -->
+      <div class="tab-content" id="sec-edit">
+        <div class="page-header"><div class="page-title">✏️ 编辑优惠券</div></div>
+        <div class="form-card">
+          <div id="editAlert"></div>
+          <div class="form-section">
+            <div class="alert-warning">
+              <span class="icon">⚠️</span>
+              <div class="text"><strong>注意：</strong>修改优惠券信息不影响已领取用户的使用。已领取的优惠券按领取时的规则执行。</div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-section-title"><span class="required">*</span>基本信息</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label><span class="required">*</span>优惠券名称</label>
+                <input type="text" class="form-input" id="edit_name" placeholder="优惠券名称">
+              </div>
+              <div class="form-group">
+                <label><span class="required">*</span>优惠类型</label>
+                <div class="type-tab">
+                  <div class="type-tab-item active" data-type="full" onclick="switchCouponType('edit','full')">满减券</div>
+                  <div class="type-tab-item" data-type="discount" onclick="switchCouponType('edit','discount')">折扣券</div>
+                </div>
+              </div>
+            </div>
+            <div class="type-content active" id="edit_type_full">
+              <div class="form-row">
+                <div class="form-group"><label><span class="required">*</span>门槛金额</label><input type="text" class="form-input" id="edit_threshold_full"></div>
+                <div class="form-group"><label><span class="required">*</span>优惠金额</label><input type="text" class="form-input" id="edit_discount_full"></div>
+              </div>
+            </div>
+            <div class="type-content" id="edit_type_discount">
+              <div class="form-row">
+                <div class="form-group"><label><span class="required">*</span>门槛金额</label><input type="text" class="form-input" id="edit_threshold_discount" disabled></div>
+                <div class="form-group"><label><span class="required">*</span>折扣率</label><input type="text" class="form-input" id="edit_discount_discount" disabled></div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label><span class="required">*</span>发行量</label>
+                <div class="quota-info">
+                  <input type="text" class="form-input" id="edit_quota" style="width:150px;">
+                  <div class="stat"><div class="stat-value" id="edit_issued">0</div><div class="stat-label">已发放</div></div>
+                  <div class="stat"><div class="stat-value" id="edit_claimed">0</div><div class="stat-label">已领取</div></div>
+                  <div class="stat"><div class="stat-value" id="edit_used">0</div><div class="stat-label">已使用</div></div>
+                  <button class="btn-default" style="padding:8px 16px;" onclick="increaseQuota()">增加发行量 +</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-section-title"><span class="required">*</span>有效期与平台</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label><span class="required">*</span>有效期类型</label>
+                <div class="form-radio-group">
+                  <label><input type="radio" name="edit_validType" value="fixed" checked> 固定日期</label>
+                  <label><input type="radio" name="edit_validType" value="dynamic"> 领券后N天生效</label>
+                </div>
+              </div>
+              <div class="form-group"><label><span class="required">*</span>生效时间</label><input type="text" class="form-input" id="edit_startDate"></div>
+              <div class="form-group"><label><span class="required">*</span>失效时间</label><input type="text" class="form-input" id="edit_endDate"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label><span class="required">*</span>适用平台</label>
+                <div class="form-radio-group">
+                  <label><input type="radio" name="edit_platform" value="pc" checked> PC端</label>
+                  <label><input type="radio" name="edit_platform" value="miniprogram"> 小程序端</label>
+                  <label><input type="radio" name="edit_platform" value="all"> 全部</label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-section-title"><span class="required">*</span>适用范围</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label><span class="required">*</span>商品范围</label>
+                <div class="form-radio-group">
+                  <label><input type="radio" name="edit_scope" value="all" checked> 全部商品</label>
+                  <label><input type="radio" name="edit_scope" value="category"> 指定分类</label>
+                  <label><input type="radio" name="edit_scope" value="product"> 指定商品</label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-section-title"><span class="required">*</span>客户范围</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label><span class="required">*</span>发放对象</label>
+                <div class="form-checkbox-group">
+                  <label><input type="checkbox" checked> 全部用户</label>
+                  <label><input type="checkbox"> 已认证用户</label>
+                  <label><input type="checkbox"> 新用户（注册未下单）</label>
+                  <label><input type="checkbox"> 老用户（有完成订单）</label>
+                  <label><input type="checkbox"> 指定客户</label>
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label><span class="required">*</span>每人限领</label><input type="text" class="form-input" id="edit_perLimit" style="width:100px;"></div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-section-title"><span class="required">*</span>发放方式 & 状态</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label><span class="required">*</span>领取方式</label>
+                <div class="form-checkbox-group">
+                  <label><input type="checkbox" checked> 手动领取（领券中心）</label>
+                  <label><input type="checkbox"> 自动发放（注册/首单）</label>
+                  <label><input type="checkbox"> 兑换码<span class="phase3-tag">第三期</span></label>
+                </div>
+              </div>
+              <div class="form-group">
+                <label><span class="required">*</span>状态</label>
+                <div class="form-radio-group">
+                  <label><input type="radio" name="edit_status" value="online" checked> 上架</label>
+                  <label><input type="radio" name="edit_status" value="offline"> 下架</label>
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>积分叠加</label>
+                <div class="form-radio-group">
+                  <label><input type="radio" name="edit_points" value="yes" checked> 支持同时使用</label>
+                  <label><input type="radio" name="edit_points" value="no"> 不可叠加</label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn-primary" onclick="submitEdit()">保存</button>
+            <button class="btn-default" onclick="showSection('list')">取消</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 复制优惠券 ==================== -->
+      <div class="tab-content" id="sec-copy">
+        <div class="page-header"><div class="page-title">📄 复制优惠券</div></div>
+        <div class="form-card">
+          <div id="copyAlert"></div>
+
+          <div class="form-section">
+            <div class="copy-source">
+              <div class="copy-source-label">从以下优惠券复制：</div>
+              <div class="copy-source-name" id="copy_source_name">🎫 满500减50（满减券 · 上架中）</div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-section-title"><span class="required">*</span>新优惠券信息</div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label><span class="required">*</span>新优惠券名称</label>
+                <input type="text" class="form-input" id="copy_name" placeholder="新优惠券名称">
+                <div class="form-hint" id="copy_name_hint">系统将自动在原名称后加数字，如已有重名则需修改</div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label><span class="required">*</span>优惠类型</label>
+                <div class="type-tab">
+                  <div class="type-tab-item active" data-type="full" onclick="switchCouponType('copy','full')">满减券</div>
+                  <div class="type-tab-item" data-type="discount" onclick="switchCouponType('copy','discount')">折扣券</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="type-content active" id="copy_type_full">
+              <div class="form-row">
+                <div class="form-group"><label><span class="required">*</span>门槛金额</label><input type="text" class="form-input" id="copy_threshold_full" placeholder="满X元"></div>
+                <div class="form-group"><label><span class="required">*</span>优惠金额</label><input type="text" class="form-input" id="copy_discount_full" placeholder="减Y元"></div>
+              </div>
+            </div>
+            <div class="type-content" id="copy_type_discount">
+              <div class="form-row">
+                <div class="form-group"><label><span class="required">*</span>门槛金额</label><input type="text" class="form-input" id="copy_threshold_discount" disabled></div>
+                <div class="form-group"><label><span class="required">*</span>折扣率</label><input type="text" class="form-input" id="copy_discount_discount" disabled></div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label><span class="required">*</span>发行量</label>
+                <input type="text" class="form-input" id="copy_quota" placeholder="1~999999" style="width:200px;">
+                <div class="form-hint">将自动生成对应数量的兑换码</div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label><span class="required">*</span>有效期</label>
+                <div style="display:flex;gap:12px;align-items:center;">
+                  <input type="text" class="form-input" id="copy_startDate" placeholder="开始时间" style="flex:1;">
+                  <span style="color:#999;">至</span>
+                  <input type="text" class="form-input" id="copy_endDate" placeholder="结束时间" style="flex:1;">
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label><span class="required">*</span>适用平台</label>
+                <div class="form-radio-group" id="copy_platform_group">
+                  <label><input type="radio" name="copy_platform" value="pc"> PC端</label>
+                  <label><input type="radio" name="copy_platform" value="miniprogram"> 小程序端</label>
+                  <label><input type="radio" name="copy_platform" value="all"> 全部</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label><span class="required">*</span>商品范围</label>
+                <div class="form-radio-group" id="copy_scope_group">
+                  <label><input type="radio" name="copy_scope" value="all" checked> 全部商品</label>
+                  <label><input type="radio" name="copy_scope" value="category"> 指定分类</label>
+                  <label><input type="radio" name="copy_scope" value="product"> 指定商品</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label><span class="required">*</span>发放对象</label>
+                <div class="form-checkbox-group" id="copy_customer_group">
+                  <label><input type="checkbox" checked> 全部用户</label>
+                  <label><input type="checkbox"> 已认证用户</label>
+                  <label><input type="checkbox"> 新用户（注册未下单）</label>
+                  <label><input type="checkbox"> 老用户（有完成订单）</label>
+                </div>
+              </div>
+              <div class="form-group">
+                <label><span class="required">*</span>每人限领</label>
+                <input type="text" class="form-input" id="copy_perLimit" value="1" style="width:100px;">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>积分叠加</label>
+                <div class="form-radio-group" id="copy_points_group">
+                  <label><input type="radio" name="copy_points" value="yes" checked> 支持同时使用</label>
+                  <label><input type="radio" name="copy_points" value="no"> 不可叠加</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="alert-info">
+              <span class="icon">ℹ️</span>
+              <div class="text">复制将继承原优惠券的：优惠类型、门槛金额、优惠内容、适用范围、客户范围、发放方式、适用平台。发行量和新有效期需要重新设置。</div>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn-primary" onclick="submitCopy()">确认复制</button>
+            <button class="btn-default" onclick="showSection('list')">取消</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 兑换码管理 ==================== -->
+      <div class="tab-content" id="sec-code">
+        <div class="page-header">
+          <div class="page-title">🔑 兑换码管理 <span class="phase3-tag">第三期 · 本期不验收</span></div>
+          <button class="btn-primary" onclick="showSection('codedetail')">查看兑换明细 ›</button>
+        </div>
+
+        <div style="background:#fff;border-radius:8px;padding:20px 24px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,0.06);display:flex;gap:24px;align-items:center;flex-wrap:wrap;">
+          <div>
+            <div style="font-size:13px;color:#999;margin-bottom:4px;">关联优惠券</div>
+            <div style="font-size:15px;font-weight:600;color:#333;" id="code_coupon_name">🎫 满500减50</div>
+          </div>
+          <button style="font-size:13px;color:#3370FF;background:none;border:none;cursor:pointer;text-decoration:underline;" onclick="changeCoupon()">更换优惠券 ›</button>
+          <div class="stat-row">
+            <div class="stat-item"><div class="value" id="code_total">1000</div><div class="label">发行量</div></div>
+            <div class="stat-item"><div class="value" style="color:#52C41A;" id="code_exchanged">756</div><div class="label">已兑换</div></div>
+            <div class="stat-item"><div class="value" id="code_remain">244</div><div class="label">剩余</div></div>
+            <div class="stat-item"><div class="value" style="color:#FA8C16;" id="code_expire">2026-06-30</div><div class="label">有效期至</div></div>
+          </div>
+        </div>
+
+        <div class="filter-card">
+          <div class="filter-item"><span class="filter-label">状态</span><select class="filter-select"><option>全部</option><option>未兑换</option><option>已兑换</option><option>已过期</option></select></div>
+          <input type="text" class="filter-input" placeholder="搜索兑换码"><button class="filter-search">搜索</button>
+        </div>
+
+        <div class="data-card">
+          <table class="data-table">
+            <thead><tr><th>兑换码</th><th>关联优惠券</th><th>状态</th><th>兑换用户</th><th>兑换时间</th><th>操作</th></tr></thead>
+            <tbody>
+              <tr><td><span class="code-tag">ABC12345D</span></td><td>满500减50</td><td><span class="status-tag status-unexchange">未兑换</span></td><td>-</td><td>-</td><td><a class="action-link" onclick="copyCode('ABC12345D')">复制</a></td></tr>
+              <tr><td><span class="code-tag">DEF67890E</span></td><td>满500减50</td><td><span class="status-tag status-used">已兑换</span></td><td>用户178****9012</td><td>2026-06-01 14:32</td><td>-</td></tr>
+              <tr><td><span class="code-tag">GHI11223F</span></td><td>满500减50</td><td><span class="status-tag status-expired">已过期</span></td><td>-</td><td>2026-05-31 23:59</td><td>-</td></tr>
+              <tr><td><span class="code-tag">JKL44556G</span></td><td>满500减50</td><td><span class="status-tag status-used">已兑换</span></td><td>用户156****8832</td><td>2026-06-05 09:15</td><td>-</td></tr>
+            </tbody>
+          </table>
+          <div class="pagination">
+            <div class="page-btn disabled">‹</div>
+            <div class="page-btn active">1</div>
+            <div class="page-btn">2</div>
+            <div class="page-btn">›</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 兑换明细页（新增） ==================== -->
+      <div class="tab-content" id="sec-codedetail">
+        <div class="page-header">
+          <div class="page-title">📋 兑换明细</div>
+          <button class="btn-primary" onclick="exportCodes()">📤 导出Excel</button>
+        </div>
+
+        <div style="background:#fff;border-radius:8px;padding:20px 24px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,0.06);display:flex;gap:24px;align-items:center;flex-wrap:wrap;">
+          <div>
+            <div style="font-size:13px;color:#999;margin-bottom:4px;">关联优惠券</div>
+            <div style="font-size:15px;font-weight:600;color:#333;">🎫 满500减50</div>
+          </div>
+          <div class="stat-row">
+            <div class="stat-item"><div class="value">1000</div><div class="label">总兑换码</div></div>
+            <div class="stat-item"><div class="value" style="color:#52C41A;">756</div><div class="label">已兑换(756人)</div></div>
+            <div class="stat-item"><div class="value">244</div><div class="label">未兑换</div></div>
+            <div class="stat-item"><div class="value" style="color:#F5222D;">0</div><div class="label">已过期</div></div>
+          </div>
+        </div>
+
+        <div class="filter-card">
+          <div class="filter-item"><span class="filter-label">状态</span><select class="filter-select"><option>全部</option><option>已兑换</option><option>未兑换</option><option>已过期</option></select></div>
+          <div class="filter-item"><span class="filter-label">兑换时间</span><select class="filter-select"><option>全部时间</option><option>今天</option><option>近7天</option><option>近30天</option></select></div>
+          <input type="text" class="filter-input" placeholder="搜索兑换码/用户手机号"><button class="filter-search">搜索</button>
+        </div>
+
+        <div class="data-card">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>兑换码</th>
+                <th>关联优惠券</th>
+                <th>状态</th>
+                <th>兑换用户</th>
+                <th>兑换人手机号</th>
+                <th>兑换时间</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="code-tag">ABC12345D</span></td>
+                <td>满500减50</td>
+                <td><span class="status-tag status-unexchange">未兑换</span></td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td><a class="action-link" onclick="copyCode('ABC12345D')">复制</a></td>
+              </tr>
+              <tr>
+                <td><span class="code-tag">DEF67890E</span></td>
+                <td>满500减50</td>
+                <td><span class="status-tag status-used">已兑换</span></td>
+                <td>张三</td>
+                <td>178****9012</td>
+                <td>2026-06-01 14:32:15</td>
+                <td><a class="action-link" onclick="copyCode('DEF67890E')">复制</a></td>
+              </tr>
+              <tr>
+                <td><span class="code-tag">GHI11223F</span></td>
+                <td>满500减50</td>
+                <td><span class="status-tag status-expired">已过期</span></td>
+                <td>-</td>
+                <td>-</td>
+                <td>2026-05-31 23:59:59</td>
+                <td>-</td>
+              </tr>
+              <tr>
+                <td><span class="code-tag">JKL44556G</span></td>
+                <td>满500减50</td>
+                <td><span class="status-tag status-used">已兑换</span></td>
+                <td>李四</td>
+                <td>156****8832</td>
+                <td>2026-06-05 09:15:33</td>
+                <td><a class="action-link" onclick="copyCode('JKL44556G')">复制</a></td>
+              </tr>
+              <tr>
+                <td><span class="code-tag">MNO77889H</span></td>
+                <td>满500减50</td>
+                <td><span class="status-tag status-used">已兑换</span></td>
+                <td>王五</td>
+                <td>139****5567</td>
+                <td>2026-06-08 16:42:08</td>
+                <td><a class="action-link" onclick="copyCode('MNO77889H')">复制</a></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="pagination">
+            <div class="page-btn disabled">‹</div>
+            <div class="page-btn active">1</div>
+            <div class="page-btn">2</div>
+            <div class="page-btn">3</div>
+            <div class="page-btn">›</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 操作日志 ==================== -->
+      <div class="tab-content" id="sec-log">
+        <div class="page-header"><div class="page-title">📜 操作日志</div></div>
+        <div class="filter-card">
+          <div class="filter-item"><span class="filter-label">操作类型</span><select class="filter-select"><option>全部</option><option>创建</option><option>编辑</option><option>发行量调整</option><option>上下架</option><option>删除</option><option>复制</option></select></div>
+          <div class="filter-item"><span class="filter-label">时间范围</span><select class="filter-select"><option>最近7天</option><option>最近30天</option><option>最近90天</option></select></div>
+          <button class="filter-search">搜索</button>
+        </div>
+        <div class="data-card">
+          <table class="data-table">
+            <thead><tr><th>操作时间</th><th>操作人</th><th>操作类型</th><th>优惠券名称</th><th>变更内容</th></tr></thead>
+            <tbody>
+              <tr><td>2026-06-13 10:23</td><td>管理员</td><td><span style="color:#52C41A;font-weight:500;">创建</span></td><td>满500减50</td><td>创建优惠券，发行量1000，自动生成1000个兑换码</td></tr>
+              <tr><td>2026-06-13 14:32</td><td>管理员</td><td><span style="color:#3370FF;font-weight:500;">复制</span></td><td>满500减51</td><td>复制自"满500减50"，发行量500</td></tr>
+              <tr><td>2026-06-12 09:15</td><td>管理员</td><td><span style="color:#FA8C16;font-weight:500;">上下架</span></td><td>限时8折券</td><td>状态：上架 → 下架</td></tr>
+              <tr><td>2026-06-11 16:45</td><td>管理员</td><td><span style="color:#52C41A;font-weight:500;">创建</span></td><td>满200减20 新客专享</td><td>创建优惠券，发行量500</td></tr>
+            </tbody>
+          </table>
+          <div class="pagination">
+            <div class="page-btn disabled">‹</div>
+            <div class="page-btn active">1</div>
+            <div class="page-btn">›</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+<script>
+// ===== 模拟数据 =====
+var couponData = [
+  { id:1, name:'满500减50', type:'full', threshold:500, discount:50, quota:1000, issued:856, claimed:756, used:234, platform:'all', startDate:'2026-06-01 00:00:00', endDate:'2026-06-30 23:59:59', status:'online', perLimit:1 },
+  { id:2, name:'满200减20 新客专享', type:'full', threshold:200, discount:20, quota:500, issued:200, claimed:180, used:45, platform:'all', startDate:'2026-06-01 00:00:00', endDate:'2026-06-30 23:59:59', status:'online', perLimit:1 },
+  { id:3, name:'限时8折券', type:'discount', threshold:300, discount:0.8, quota:300, issued:120, claimed:100, used:30, platform:'pc', startDate:'2026-06-01 00:00:00', endDate:'2026-06-30 23:59:59', status:'offline', perLimit:1 },
+  { id:4, name:'新人首单礼', type:'full', threshold:100, discount:15, quota:2000, issued:1560, claimed:1420, used:890, platform:'all', startDate:'2026-05-01 00:00:00', endDate:'2026-08-31 23:59:59', status:'online', perLimit:1 },
+  { id:5, name:'会员专享9折', type:'discount', threshold:200, discount:0.9, quota:800, issued:320, claimed:280, used:120, platform:'miniprogram', startDate:'2026-06-01 00:00:00', endDate:'2026-12-31 23:59:59', status:'offline', perLimit:1 },
+];
+
+var currentEditId = null;
+var currentCopyId = null;
+var currentPage = 1;
+
+// ===== 渲染列表 =====
+function renderList() {
+  var tbody = document.getElementById('listTableBody');
+  var html = '';
+  couponData.forEach(function(c) {
+    var platformTag = c.platform === 'pc' ? '<span class="platform-tag platform-pc">PC端</span>' : c.platform === 'miniprogram' ? '<span class="platform-tag platform-wx">小程序端</span>' : '<span class="platform-tag platform-all">全部</span>';
+    var typeText = c.type === 'full' ? '满减券' : '折扣券';
+    var contentText = c.type === 'full' ? '满'+c.threshold+'减'+c.discount+'元' : '满'+c.threshold+'享'+Math.round(c.discount*10)+'折';
+    var statusClass = c.status === 'online' ? 'status-online' : c.status === 'offline' ? 'status-offline' : 'status-expired';
+    var statusText = c.status === 'online' ? '上架' : c.status === 'offline' ? '下架' : '已过期';
+    html += '<tr>' +
+      '<td><strong>'+c.name+'</strong></td>' +
+      '<td>'+typeText+'</td>' +
+      '<td>'+contentText+'</td>' +
+      '<td>'+c.quota+'</td>' +
+      '<td>'+c.issued+'</td>' +
+      '<td>'+c.claimed+'</td>' +
+      '<td>'+c.used+'</td>' +
+      '<td>'+platformTag+'</td>' +
+      '<td>'+c.startDate.substring(0,10)+' 至 '+c.endDate.substring(0,10)+'</td>' +
+      '<td><span class="status-tag '+statusClass+'">'+statusText+'</span></td>' +
+      '<td>' +
+        '<a class="action-link" onclick="goEdit('+c.id+')">编辑</a>' +
+        '<a class="action-link" onclick="goCopy('+c.id+')">复制</a>' +
+        '<a class="action-link" onclick="goCodeDetail('+c.id+')">兑换明细</a>' +
+        (c.status==='online' ? '<a class="action-link">下架</a>' : '<a class="action-link">上架</a>') +
+        '<a class="action-link danger">删除</a>' +
+      '</td></tr>';
+  });
+  tbody.innerHTML = html;
+}
+
+// ===== 切换优惠券类型 =====
+function switchCouponType(prefix, type) {
+  document.querySelectorAll('#sec-'+prefix+' .type-tab-item').forEach(function(t){ t.classList.remove('active'); });
+  document.querySelector('#sec-'+prefix+' .type-tab-item[data-type="'+type+'"]').classList.add('active');
+  document.querySelectorAll('#sec-'+prefix+' .type-content').forEach(function(c){ c.classList.remove('active'); });
+  document.getElementById(prefix+'_type_'+type).classList.add('active');
+}
+
+// ===== 新增提交 =====
+function submitAdd() {
+  var name = document.getElementById('add_name').value.trim();
+  var quota = parseInt(document.getElementById('add_quota').value);
+  var alertDiv = document.getElementById('addAlert');
+  var nameHint = document.getElementById('add_name_hint');
+
+  if (!name) {
+    alertDiv.innerHTML = '<div class="alert-error"><span class="icon">✖</span><div class="text">请输入优惠券名称</div></div>';
+    return;
+  }
+  // 检查名称重复
+  var exists = couponData.some(function(c){ return c.name === name; });
+  if (exists) {
+    alertDiv.innerHTML = '<div class="alert-error"><span class="icon">✖</span><div class="text">优惠券名称已存在，请修改</div></div>';
+    document.getElementById('add_name').classList.add('error');
+    nameHint.innerHTML = '<span style="color:#F5222D;">❌ 名称已存在，请修改</span>';
+    return;
+  }
+  if (isNaN(quota) || quota < 1 || quota > 999999) {
+    alertDiv.innerHTML = '<div class="alert-error"><span class="icon">✖</span><div class="text">发行量必须为1~999999之间的数字</div></div>';
+    return;
+  }
+  alertDiv.innerHTML = '<div class="alert-success"><span class="icon">✔</span><div class="text">优惠券创建成功！已自动生成 '+quota+' 个兑换码</div></div>';
+  setTimeout(function(){ showSection('list'); }, 1500);
+}
+
+// ===== 编辑 =====
+function goEdit(id) {
+  currentEditId = id;
+  var c = couponData.find(function(x){ return x.id === id; });
+  if (!c) return;
+  document.getElementById('edit_name').value = c.name;
+  document.getElementById('edit_quota').value = c.quota;
+  document.getElementById('edit_issued').textContent = c.issued;
+  document.getElementById('edit_claimed').textContent = c.claimed;
+  document.getElementById('edit_used').textContent = c.used;
+  document.getElementById('edit_startDate').value = c.startDate;
+  document.getElementById('edit_endDate').value = c.endDate;
+  document.getElementById('edit_perLimit').value = c.perLimit;
+  if (c.type === 'full') {
+    document.getElementById('edit_threshold_full').value = c.threshold;
+    document.getElementById('edit_discount_full').value = c.discount;
+    switchCouponType('edit','full');
+  } else {
+    switchCouponType('edit','discount');
+  }
+  document.querySelectorAll('input[name="edit_platform"][value="'+c.platform+'"]')[0].checked = true;
+  document.querySelectorAll('input[name="edit_status"][value="'+c.status+'"]')[0].checked = true;
+  document.getElementById('editAlert').innerHTML = '';
+  showSection('edit');
+}
+
+function submitEdit() {
+  document.getElementById('editAlert').innerHTML = '<div class="alert-success"><span class="icon">✔</span><div class="text">优惠券保存成功！</div></div>';
+  setTimeout(function(){ showSection('list'); }, 1500);
+}
+
+function increaseQuota() {
+  var current = parseInt(document.getElementById('edit_quota').value);
+  document.getElementById('edit_quota').value = current + 100;
+}
+
+// ===== 复制 =====
+function goCopy(id) {
+  currentCopyId = id;
+  var c = couponData.find(function(x){ return x.id === id; });
+  if (!c) return;
+  document.getElementById('copy_source_name').textContent = '🎫 '+c.name+'（'+(c.type==='full'?'满减券':'折扣券')+'）';
+
+  // 自动生成新名称：原名称加"-副本"后缀，重复则加"-副本2"/"-副本3"以此类推（2026-08-17按PRD §13.7修正：
+  // 此前是"名称末尾数字+1"，但如果名称末尾数字恰好是优惠金额本身（比如"满500减50"），+1会变成
+  // "满500减51"，看起来像是把优惠金额改成了51元，容易误导，PRD 08-08已经改成不碰名称数字的固定后缀）
+  var newName = c.name + '-副本';
+  var suffixNum = 2;
+  while (couponData.some(function(x){ return x.name === newName; })) {
+    newName = c.name + '-副本' + suffixNum;
+    suffixNum++;
+  }
+
+  document.getElementById('copy_name').value = newName;
+  document.getElementById('copy_quota').value = c.quota;
+  document.getElementById('copy_startDate').value = c.startDate;
+  document.getElementById('copy_endDate').value = c.endDate;
+  document.getElementById('copy_perLimit').value = c.perLimit;
+
+  if (c.type === 'full') {
+    document.getElementById('copy_threshold_full').value = c.threshold;
+    document.getElementById('copy_discount_full').value = c.discount;
+    switchCouponType('copy','full');
+  } else {
+    document.getElementById('copy_threshold_discount').value = c.threshold;
+    document.getElementById('copy_discount_discount').value = c.discount;
+    switchCouponType('copy','discount');
+  }
+  document.querySelectorAll('input[name="copy_platform"][value="'+c.platform+'"]')[0].checked = true;
+  document.querySelectorAll('input[name="copy_scope"][value="'+(c.scope||'all')+'"]')[0].checked = true;
+  document.getElementById('copyAlert').innerHTML = '';
+  showSection('copy');
+}
+
+function submitCopy() {
+  var name = document.getElementById('copy_name').value.trim();
+  var quota = parseInt(document.getElementById('copy_quota').value);
+  var alertDiv = document.getElementById('copyAlert');
+  if (!name) {
+    alertDiv.innerHTML = '<div class="alert-error"><span class="icon">✖</span><div class="text">请输入新优惠券名称</div></div>';
+    return;
+  }
+  var exists = couponData.some(function(c){ return c.name === name; });
+  if (exists) {
+    alertDiv.innerHTML = '<div class="alert-error"><span class="icon">✖</span><div class="text">优惠券名称已存在，请修改后重试</div></div>';
+    return;
+  }
+  if (isNaN(quota) || quota < 1 || quota > 999999) {
+    alertDiv.innerHTML = '<div class="alert-error"><span class="icon">✖</span><div class="text">发行量必须为1~999999</div></div>';
+    return;
+  }
+  alertDiv.innerHTML = '<div class="alert-success"><span class="icon">✔</span><div class="text">复制成功！已自动生成 '+quota+' 个兑换码</div></div>';
+  setTimeout(function(){ showSection('list'); }, 1500);
+}
+
+// ===== 兑换明细 =====
+function goCodeDetail(id) {
+  var c = couponData.find(function(x){ return x.id === id; });
+  if (c) {
+    document.getElementById('code_coupon_name').textContent = '🎫 '+c.name;
+    document.getElementById('code_total').textContent = c.quota;
+    document.getElementById('code_exchanged').textContent = c.claimed;
+    document.getElementById('code_remain').textContent = c.quota - c.claimed;
+    document.getElementById('code_expire').textContent = c.endDate.substring(0,10);
+  }
+  showSection('codedetail');
+}
+
+function copyCode(code) {
+  navigator.clipboard.writeText(code).then(function(){
+    alert('兑换码 '+code+' 已复制');
+  });
+}
+
+function exportCodes() {
+  alert('导出Excel功能开发中...');
+}
+
+function changeCoupon() {
+  alert('更换优惠券浮层开发中...');
+}
+
+// ===== 页面切换 =====
+function showSection(name) {
+  document.querySelectorAll('.tab-content').forEach(function(s){ s.classList.remove('active'); });
+  document.getElementById('sec-' + name).classList.add('active');
+  document.querySelectorAll('.sidebar-item').forEach(function(i){ i.classList.remove('active'); });
+  var sections = ['list','add','edit','copy','code','codedetail','log'];
+  var idx = sections.indexOf(name);
+  if (idx >= 0) { document.querySelectorAll('.sidebar-item')[idx].classList.add('active'); }
+  window.scrollTo(0, 0);
+}
+
+// ===== 名称实时查重 =====
+document.getElementById('add_name').addEventListener('input', function(){
+  var name = this.value.trim();
+  var hint = document.getElementById('add_name_hint');
+  var exists = couponData.some(function(c){ return c.name === name; });
+  if (exists) {
+    hint.innerHTML = '<span style="color:#F5222D;">❌ 名称已存在</span>';
+    this.classList.add('error');
+  } else if (name) {
+    hint.innerHTML = '<span style="color:#52C41A;">✔ 可用</span>';
+    this.classList.remove('error');
+  } else {
+    hint.innerHTML = '名称不允许与已有优惠券重复';
+    this.classList.remove('error');
+  }
+});
+
+document.getElementById('copy_name').addEventListener('input', function(){
+  var name = this.value.trim();
+  var hint = document.getElementById('copy_name_hint');
+  var exists = couponData.some(function(c){ return c.name === name; });
+  if (exists) {
+    hint.innerHTML = '<span style="color:#F5222D;">❌ 名称已存在，请修改</span>';
+    this.classList.add('error');
+  } else if (name) {
+    hint.innerHTML = '<span style="color:#52C41A;">✔ 可用</span>';
+    this.classList.remove('error');
+  } else {
+    hint.innerHTML = '系统将自动在原名称后加数字，如已有重名则需修改';
+    this.classList.remove('error');
+  }
+});
+
+// ===== 初始化 =====
+document.addEventListener('DOMContentLoaded', function(){
+  renderList();
+  showSection('list');
+});
+</script>
+</body>
+</html>

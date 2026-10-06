@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>优惠券模块 · 原型与PRD门户</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%236366f1'/%3E%3Ctext x='50' y='73' font-size='56' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='700'%3E%E5%88%B8%3C/text%3E%3C/svg%3E">
+  <script src="../assets/marked.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background: #F0F2F5;
+      color: #333;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ===== 顶部导航 ===== */
+    .top-bar {
+      height: 56px;
+      background: linear-gradient(135deg, #1a1a2e, #16213e);
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      flex-shrink: 0;
+      z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+    }
+    .top-logo {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      margin-right: 32px;
+      white-space: nowrap;
+    }
+    .top-logo span { color: #60A5FA; }
+    .top-tabs { display: flex; gap: 4px; }
+    .top-tab {
+      padding: 8px 20px;
+      font-size: 14px;
+      color: rgba(255,255,255,0.6);
+      cursor: pointer;
+      border-radius: 6px;
+      border: 1px solid transparent;
+      transition: all .2s;
+    }
+    .top-tab:hover { color: #fff; background: rgba(255,255,255,0.08); }
+    .top-tab.active { color: #fff; background: rgba(96,165,250,0.2); border-color: rgba(96,165,250,0.4); font-weight: 600; }
+
+    /* ===== 主体：左侧目录 + 右侧内容 ===== */
+    .main { flex: 1; display: flex; overflow: hidden; }
+
+    /* ===== 左侧目录 ===== */
+    .sidebar {
+      width: 240px;
+      background: #fff;
+      border-right: 1px solid #E5E7EB;
+      overflow-y: auto;
+      flex-shrink: 0;
+    }
+    .sidebar-section { border-bottom: 1px solid #F0F0F0; }
+    .sidebar-header {
+      padding: 14px 16px 6px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #999;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 16px;
+      font-size: 13px;
+      color: #555;
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      transition: all .15s;
+    }
+    .sidebar-item:hover { background: #F5F7FF; color: #3370FF; }
+    .sidebar-item.active { background: #E8F0FF; color: #3370FF; border-left-color: #3370FF; font-weight: 600; }
+    .sidebar-item .badge {
+      margin-left: auto;
+      font-size: 10px;
+      padding: 1px 6px;
+      background: #F5F5F5;
+      color: #999;
+      border-radius: 10px;
+    }
+    .sidebar-item .badge.done { background: #F6FFED; color: #52C41A; }
+
+    /* ===== 右侧内容区 ===== */
+    .content-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .content-toolbar {
+      background: #fff;
+      padding: 10px 20px;
+      border-bottom: 1px solid #E5E5E5;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    .toolbar-title { font-size: 13px; color: #666; flex: 1; }
+    .toolbar-title strong { color: #3370FF; }
+    .toolbar-btn {
+      padding: 5px 14px;
+      background: #3370FF;
+      color: #fff;
+      border-radius: 4px;
+      font-size: 12px;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .toolbar-btn:hover { background: #2860E0; }
+
+    .content-frame {
+      flex: 1;
+      overflow: hidden;
+      background: #E8E8E8;
+      padding: 20px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+    }
+    .content-frame iframe {
+      width: 375px;
+      height: 100%;
+      min-height: 680px;
+      border: none;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+      background: #fff;
+    }
+    .content-frame iframe.pc { width: 100%; max-width: none; height: 700px; }
+    .content-frame iframe.admin { width: 100%; max-width: none; height: 800px; }
+    .content-frame iframe.prd-frame {
+      width: 100%;
+      max-width: 860px;
+      padding: 0;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+      overflow-y: auto;
+    }
+    /* PRD 阅读模式：iframe 撑满容器高度，正文在 iframe 内滚动 */
+    .content-frame.prd-mode { align-items: stretch; }
+    .content-frame.prd-mode iframe.prd-frame { height: auto; max-height: 100%; }
+
+    /* ===== PRD 面板：文档切换 chips ===== */
+    .doc-chips { display: flex; gap: 6px; padding: 8px 12px 10px; border-bottom: 1px solid #F0F0F0; }
+    .doc-chip {
+      flex: 1; padding: 6px 8px; font-size: 11.5px; cursor: pointer;
+      border: 1px solid #E5E7EB; border-radius: 6px; background: #fff; color: #666;
+      font-family: inherit; transition: all .15s; white-space: nowrap;
+    }
+    .doc-chip:hover { border-color: #3370FF; color: #3370FF; }
+    .doc-chip.active { background: #E8F0FF; border-color: #3370FF; color: #3370FF; font-weight: 600; }
+
+    /* ===== 右侧信息面板 ===== */
+    .info-panel {
+      width: 260px;
+      background: #fff;
+      border-left: 1px solid #E5E7EB;
+      overflow-y: auto;
+      flex-shrink: 0;
+      padding: 16px;
+    }
+    .info-section { margin-bottom: 20px; }
+    .info-section-title { font-size: 11px; font-weight: 600; color: #999; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+    .info-row { display: flex; justify-content: space-between; font-size: 13px; padding: 5px 0; border-bottom: 1px solid #F5F5F5; }
+    .info-row:last-child { border-bottom: none; }
+    .info-row .key { color: #666; }
+    .info-row .val { color: #333; font-weight: 600; }
+    .info-tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+    .tag-done { background: #F6FFED; color: #52C41A; }
+    .tag-wip { background: #FFF7E6; color: #FA8C16; }
+    .info-link {
+      display: block;
+      padding: 7px 10px;
+      background: #F5F7FF;
+      border-radius: 6px;
+      font-size: 12px;
+      color: #3370FF;
+      text-decoration: none;
+      margin-bottom: 6px;
+    }
+    .info-link:hover { background: #E8F0FF; }
+
+    /* ===== 快捷状态卡 ===== */
+    .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+    .status-card { background: #F5F7FF; border-radius: 8px; padding: 10px; text-align: center; }
+    .status-card .num { font-size: 22px; font-weight: 700; color: #3370FF; }
+    .status-card .label { font-size: 11px; color: #999; margin-top: 2px; }
+
+    /* ===== PRD渲染内容 ===== */
+    .prd-content { font-size: 14px; line-height: 1.7; color: #333; }
+    .prd-content h1 { font-size: 20px; font-weight: 700; color: #1a1a2e; margin: 0 0 16px; padding-bottom: 8px; border-bottom: 2px solid #E5E5E5; }
+    .prd-content h2 { font-size: 16px; font-weight: 700; color: #1a1a2e; margin: 24px 0 10px; }
+    .prd-content h3 { font-size: 14px; font-weight: 600; color: #333; margin: 16px 0 8px; }
+    .prd-content table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 13px; }
+    .prd-content th { background: #F5F7FF; padding: 8px 12px; text-align: left; font-weight: 600; border: 1px solid #E5E5E5; color: #333; }
+    .prd-content td { padding: 7px 12px; border: 1px solid #E5E5E5; vertical-align: top; }
+    .prd-content tr:nth-child(even) td { background: #FAFAFA; }
+    .prd-content code { background: #F0F5FF; padding: 1px 5px; border-radius: 3px; font-family: monospace; font-size: 12px; color: #3370FF; }
+    .prd-content pre { background: #F5F7FF; padding: 12px; border-radius: 6px; overflow-x: auto; margin: 10px 0; }
+    .prd-content pre code { background: none; padding: 0; }
+    .prd-content ul, .prd-content ol { padding-left: 20px; margin: 8px 0; }
+    .prd-content li { margin-bottom: 4px; }
+    .prd-content strong { font-weight: 600; color: #333; }
+    .prd-content em { color: #666; }
+    .prd-toc { background: #FFF7E6; border: 1px solid #FFE58F; border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; }
+    .prd-toc-title { font-size: 13px; font-weight: 700; color: #AD6800; margin-bottom: 8px; }
+    .prd-toc a { display: block; font-size: 12px; color: #3370FF; text-decoration: none; padding: 2px 0; }
+    .prd-toc a:hover { text-decoration: underline; }
+
+    /* ===== 隐藏类 ===== */
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <!-- 顶部导航 -->
+  <div class="top-bar">
+    <div class="top-logo">🎫 优惠券模块 <span>原型与PRD</span></div>
+    <div class="top-tabs">
+      <div class="top-tab active" data-panel="mini">📱 小程序原型</div>
+      <div class="top-tab" data-panel="pc">💻 PC门户原型</div>
+      <div class="top-tab" data-panel="admin">🏢 商家后台原型</div>
+      <div class="top-tab" data-panel="prd">📄 PRD文档</div>
+    </div>
+  </div>
+
+  <!-- 主体 -->
+  <div class="main">
+
+    <!-- 左侧目录 -->
+    <div class="sidebar">
+
+      <!-- 小程序原型 -->
+      <div class="sidebar-section" data-panel="mini">
+        <div class="sidebar-header">📱 小程序原型 · 13个页面</div>
+        <div class="sidebar-item active" data-file="小程序/v2.0-WX-06领券中心.html" data-title="领券中心">
+          领券中心 <span class="badge done">✅</span>
+        </div>
+        <div class="sidebar-item" data-file="小程序/v2.0-WX-07我的优惠券.html" data-title="我的优惠券">
+          我的优惠券 <span class="badge done">✅</span>
+        </div>
+        <div class="sidebar-item" data-file="小程序/v2.0-WX-08购物车优惠券.html" data-title="购物车优惠券">
+          购物车优惠券浮层 <span class="badge done">✅</span>
+        </div>
+        <div class="sidebar-item" data-file="小程序/v2.0-WX-09商品详情优惠券.html" data-title="商品详情领券">
+          商品详情领券区 <span class="badge done">✅</span>
+        </div>
+        <div class="sidebar-item" data-file="小程序/v2.0-WX-10确认订单优惠券.html" data-title="确认订单">
+          确认订单选券 <span class="badge done">✅</span>
+        </div>
+        <div class="sidebar-item" data-file="小程序/v2.0-WX-11优惠券去使用商品列表.html" data-title="优惠券可用商品">
+          优惠券去使用 <span class="badge new">🆕</span>
+        </div>
+        <div class="sidebar-item" data-file="小程序/v2.0-WX-10b-确认订单优惠券-单商品.html" data-title="确认订单-单商品">
+          确认订单-单商品 <span class="badge done">✅</span>
+        </div>
+        <div class="sidebar-item" data-file="小程序/v2.0-WX-10c-确认订单优惠券-单商品折扣.html" data-title="确认订单-单商品折扣">
+          确认订单-单商品折扣 <span class="badge done">✅</span>
+        </div>
+        <div class="sidebar-item" data-file="小程序/v2.0-WX-10d-确认订单优惠券-多商品折扣.html" data-title="确认订单-多商品折扣">
+          确认订单-多商品折扣 <span class="badge done">✅</span>
+        </div>
+        <div class="sidebar-item" data-file="小程序/v2.0-WX-10e-确认订单优惠券-全部退款-未过期.html" data-title="确认订单-全部退款未过期">
+          退款-未过期 <span class="badge done">✅</span>
+        </div>
+        <div class="sidebar-item" data-file="小程序/v2.0-WX-10f-确认订单优惠券-全部退款-已过期.html" data-title="确认订单-全部退款已过期">
+          退款-已过期 <span class="badge done">✅</span>
+        </div>
+        <div class="sidebar-item" data-file="小程序/v2.0-WX-10g-确认订单优惠券-部分退款.html" data-title="确认订单-部分退款">
+          部分退款 <span class="badge done">✅</span>
+        </div>
+        <div class="sidebar-item" data-file="小程序/v2.0-WX-10h-确认订单优惠券-全部退款-已使用.html" data-title="确认订单-全部退款已使用">
+          退款-已使用 <span class="badge done">✅</span>
+        </div>
+      </div>
+
+      <!-- PC端原型 -->
+      <div class="sidebar-section hidden" data-panel="pc">
+        <div class="sidebar-header">💻 PC门户原型 · 10个页面</div>
+        <div class="sidebar-item" data-file="PC端/v2.0-PC-领券中心.html" data-title="领券中心">
+          领券中心 <span class="badge done">✅</span>
+        </div>
+        <div class="sidebar-item" data-file="PC端/v2.0-PC-我的优惠券.html" data-title="我的优惠券">
+          我的优惠券 <span class="badge done">✅</span>
+        </div>
+        <div class="sidebar-item" data-file="PC端/v2.0-PC-商品详情优惠券.html" data-title="商品详情">
+          商品详情优惠券 <span class="badge done">✅</span>
+        </div>
+        <div class="sidebar-item" data-file="PC端/v2.0-PC-确认订单优惠券.html" data-title="确认订单">
+          确认订单优惠券 <span class="badge done">✅</span>
+        </div>
+        <div class="sidebar-item" data-file="PC端/v2.0-PC-优惠券去使用商品列表.html" data-title="优惠券可用商品">
+          优惠券去使用 <span class="badge new">🆕</span>
+        </div>
+        <div class="sidebar-item" data-file="PC端/v2.0-PC-确认订单优惠券-单商品.html" data-title="确认订单-单商品">
+          确认订单-单商品 <span class="badge done">✅</span>
+        </div>
+        <div class="sidebar-item" data-file="PC端/v2.0-PC-确认订单优惠券-全部退款-未过期.html" data-title="确认订单-退款未过期">
+          退款-未过期 <span class="badge done">✅</span>
+        </div>
+        <div class="sidebar-item" data-file="PC端/v2.0-PC-确认订单优惠券-全部退款-已过期.html" data-title="确认订单-退款已过期">
+          退款-已过期 <span class="badge done">✅</span>
+        </div>
+        <div class="sidebar-item" data-file="PC端/v2.0-PC-确认订单优惠券-部分退款.html" data-title="确认订单-部分退款">
+          部分退款 <span class="badge done">✅</span>
+        </div>
+        <div class="sidebar-item" data-file="PC端/v2.0-PC-确认订单优惠券-全部退款-已使用.html" data-title="确认订单-退款已使用">
+          退款-已使用 <span class="badge done">✅</span>
+        </div>
+      </div>
+
+      <!-- 商家后台原型 -->
+      <div class="sidebar-section hidden" data-panel="admin">
+        <div class="sidebar-header">🏢 商家后台原型 · 1个文件 6个页面</div>
+        <div class="sidebar-item active" data-file="商家后台/v2.0-MC-优惠券管理.html" data-title="优惠券管理（6合1）" data-type="admin">
+          优惠券管理（6合1） <span class="badge done">✅</span>
+        </div>
+      </div>
+
+      <!-- PRD文档章节（由脚本按 Markdown 标题动态生成） -->
+      <div class="sidebar-section hidden" data-panel="prd" id="prdNav">
+        <div class="sidebar-header" id="prdNavHeader">📄 PRD 全文 · 章节导航</div>
+        <div class="doc-chips" id="prdChips">
+          <button class="doc-chip active" data-doc="prd">PRD v2.0</button>
+          <button class="doc-chip" data-doc="req">需求分析 v1.0</button>
+        </div>
+        <div id="prdNavItems"></div>
+      </div>
+
+    </div>
+
+    <!-- 右侧内容区 -->
+    <div class="content-area">
+      <div class="content-toolbar">
+        <div class="toolbar-title">当前：<strong id="toolbarTitle">小程序 / 领券中心</strong></div>
+        <a class="toolbar-btn" id="openBtn" href="#" target="_blank">↗ 新窗口打开</a>
+      </div>
+      <div class="content-frame">
+        <iframe id="contentFrame" src="小程序/v2.0-WX-06领券中心.html"></iframe>
+      </div>
+    </div>
+
+    <!-- 右侧信息面板 -->
+    <div class="info-panel">
+      <div class="status-grid">
+        <div class="status-card"><div class="num">13</div><div class="label">小程序</div></div>
+        <div class="status-card"><div class="num">10</div><div class="label">PC端</div></div>
+        <div class="status-card"><div class="num">6</div><div class="label">商家后台</div></div>
+        <div class="status-card"><div class="num">24</div><div class="label">原型总数</div></div>
+      </div>
+
+      <div class="info-section">
+        <div class="info-section-title">当前页面信息</div>
+        <div class="info-row"><span class="key">端</span><span class="val" id="infoTerminal">小程序端</span></div>
+        <div class="info-row"><span class="key">文件</span><span class="val" id="infoFile">v2.0-WX-06领券中心.html</span></div>
+        <div class="info-row"><span class="key">状态</span><span class="val"><span class="info-tag tag-done">✅ 已完成</span></span></div>
+      </div>
+
+      <div class="info-section">
+        <div class="info-section-title">PRD规则关联</div>
+        <a class="info-link" href="../02_PRD/优惠券模块PRD_v1.5.md#发放方式" target="_blank">📄 §5 发放方式</a>
+        <a class="info-link" href="../02_PRD/优惠券模块PRD_v1.5.md#状态显示逻辑" target="_blank">📄 §11 状态显示逻辑</a>
+        <a class="info-link" href="../02_PRD/优惠券模块PRD_v1.5.md#确认订单选券逻辑" target="_blank">📄 §12 确认订单选券逻辑</a>
+        <a class="info-link" href="../02_PRD/优惠券模块PRD_v1.5.md#商家端功能" target="_blank">📄 §13 商家端功能</a>
+      </div>
+
+      <div class="info-section">
+        <div class="info-section-title">功能要点</div>
+        <div class="info-row"><span class="key">Tab</span><span class="val" id="infoTab">全部/可领取/已领取</span></div>
+        <div class="info-row"><span class="key">按钮</span><span class="val" id="infoBtn">立即领取/已领取✓</span></div>
+        <div class="info-row"><span class="key">券类型</span><span class="val" id="infoType">满减/折扣</span></div>
+      </div>
+
+      <div class="info-section">
+        <div class="info-section-title">研发注意事项</div>
+        <div class="info-row"><span class="key">限时折扣</span><span class="val">不可用券</span></div>
+        <div class="info-row"><span class="key">每单限用</span><span class="val">1张</span></div>
+        <div class="info-row"><span class="key">退款退券</span><span class="val">未过期退回</span></div>
+      </div>
+    </div>
+
+  </div>
+
+<script>
+// ===== 页面数据 =====
+var pageInfo = {
+  mini: {
+    '领券中心':    { tabs: '全部/可领取/已领取', btn: '立即领取/去使用（2026-08-17按PRD §11.6修正，此前误写"已领取✓"）', type: '满减/折扣' },
+    '我的优惠券':   { tabs: '可用/不可用/全部（2026-08-17按PRD §11.4修正，此前误写"全部/待使用/已使用/已失效"）', btn: '去使用/已过期', type: '满减/折扣' },
+    '购物车优惠券浮层': { tabs: '可用/不可用', btn: '确定', type: '仅满减' },
+    '商品详情领券区': { tabs: '展开/收起', btn: '立即领取/去使用（2026-08-17修正，同上）', type: '品牌/新客' },
+    '确认订单选券': { tabs: '可用/不可用', btn: '确定', type: '满减' }
+  },
+  pc: {
+    '领券中心':      { tabs: '全部/可领取/已领取', btn: '立即领取/去使用（2026-08-17修正）', type: '满减/折扣' },
+    '我的优惠券':     { tabs: '可用/不可用/全部（2026-08-17修正，同mini端）', btn: '去使用', type: '满减/折扣' },
+    '商品详情优惠券': { tabs: '展开/收起', btn: '立即领取/去使用（2026-08-17修正）', type: '品牌/品类' },
+    '确认订单优惠券': { tabs: '可用/不可用', btn: '提交订单', type: '满减' }
+  },
+  admin: {
+    '优惠券管理（6合1）': { tabs: '列表/新增/编辑/复制/兑换码/日志', btn: '编辑/复制/上下架/删除', type: '—' }
+  }
+};
+
+// ===== 端切换 =====
+document.querySelectorAll('.top-tab').forEach(function(tab) {
+  tab.addEventListener('click', function() {
+    document.querySelectorAll('.top-tab').forEach(function(t) { t.classList.remove('active'); });
+    this.classList.add('active');
+
+    var panel = this.dataset.panel;
+
+    // 切换侧边栏
+    document.querySelectorAll('.sidebar-section').forEach(function(s) {
+      s.classList.add('hidden');
+      if (s.dataset.panel === panel) { s.classList.remove('hidden'); }
+    });
+
+    var cf = document.querySelector('.content-frame');
+    if (panel === 'prd') {
+      cf.classList.add('prd-mode');
+      ensurePrd();
+    } else {
+      cf.classList.remove('prd-mode');
+    }
+
+    // 默认加载第一个
+    var firstItem = document.querySelector('.sidebar-section[data-panel="' + panel + '"] .sidebar-item');
+    if (firstItem) { firstItem.click(); }
+  });
+});
+
+// ===== 页面切换 =====
+document.querySelectorAll('.sidebar-item[data-file]').forEach(function(item) {
+  item.addEventListener('click', function() {
+    var panel = this.closest('.sidebar-section').dataset.panel;
+    document.querySelectorAll('.sidebar-section[data-panel="' + panel + '"] .sidebar-item').forEach(function(i) { i.classList.remove('active'); });
+    this.classList.add('active');
+
+    var file = this.dataset.file;
+    var title = this.dataset.title;
+    var type = this.dataset.type;
+    var frame = document.getElementById('contentFrame');
+
+    frame.src = file;
+    frame.className = type === 'admin' ? 'admin' : (panel === 'pc' ? 'pc' : '');
+    frame.removeAttribute('srcdoc');
+
+    document.getElementById('toolbarTitle').textContent = (panel === 'mini' ? '小程序 / ' : panel === 'pc' ? 'PC端 / ' : '商家后台 / ') + title;
+    document.getElementById('openBtn').href = file;
+    document.getElementById('infoTerminal').textContent = panel === 'mini' ? '小程序端' : panel === 'pc' ? 'PC门户端' : '商家后台';
+    document.getElementById('infoFile').textContent = file.split('/').pop();
+
+    updateInfo(panel, title);
+  });
+});
+
+// ===== PRD 全文阅读模式（左侧目录定位 · 右侧全文）=====
+var PRD_DOCS = {
+  prd: { name: 'PRD v2.0', file: '../02_PRD/优惠券模块PRD_v2.0.md', label: 'PRD' },
+  req: { name: '需求分析 v1.0', file: '../02_PRD/需求分析-优惠券模块_v1.0.md', label: '需求分析' }
+};
+var prdDoc = 'prd';
+var prdLoaded = {};
+var prdReady = false;
+
+var PRD_CSS = '<style>' +
+  '* { box-sizing: border-box; }' +
+  'html { scroll-behavior: smooth; }' +
+  'body { margin: 0; padding: 28px 36px 60px; background: #fff; color: #2c3345;' +
+  ' font-family: -apple-system, "PingFang SC", "Helvetica Neue", sans-serif;' +
+  ' font-size: 14px; line-height: 1.85; }' +
+  '.prd-content { max-width: 860px; margin: 0 auto; }' +
+  'h1 { font-size: 22px; color: #16213e; border-bottom: 2px solid #e8ecf5; padding-bottom: 10px; margin: 0 0 20px; }' +
+  'h2 { font-size: 18px; color: #16213e; border-left: 4px solid #3370ff; padding-left: 10px;' +
+  ' margin: 38px 0 12px; scroll-margin-top: 14px; }' +
+  'h3 { font-size: 15.5px; color: #2c3345; margin: 24px 0 10px; }' +
+  'h4 { font-size: 14px; color: #2c3345; margin: 18px 0 8px; }' +
+  'p { margin: 8px 0; }' +
+  'table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }' +
+  'th { background: #f0f6ff; color: #16213e; font-weight: 600; }' +
+  'th, td { border: 1px solid #dfe5f0; padding: 8px 12px; text-align: left; vertical-align: top; }' +
+  'tr:nth-child(even) td { background: #fafbfd; }' +
+  'code { background: #f2f4f8; border: 1px solid #e5e9f2; border-radius: 4px;' +
+  ' padding: 1px 6px; font-size: 12.5px; font-family: ui-monospace, Menlo, monospace; color: #c7254e; }' +
+  'pre { background: #f7f8fa; border: 1px solid #e5e9f2; border-radius: 8px; padding: 12px 16px; overflow-x: auto; }' +
+  'pre code { background: none; border: none; padding: 0; color: #333; }' +
+  'blockquote { border-left: 4px solid #dce6ff; background: #f8faff; margin: 10px 0; padding: 8px 16px; color: #5a6478; }' +
+  'ul, ol { padding-left: 24px; margin: 8px 0; }' +
+  'li { margin: 4px 0; }' +
+  'hr { border: none; border-top: 1px dashed #dfe5f0; margin: 22px 0; }' +
+  'a { color: #3370ff; }' +
+  'strong { color: #16213e; }' +
+  '</style>';
+
+function prdSlug(i) { return 'prd-sec-' + i; }
+
+function buildPrdDoc(md) {
+  var idx = 0;
+  var body = md.replace(/^## (.+)$/gm, function(m, t) {
+    return '<h2 id="' + prdSlug(idx++) + '">' + t + '</h2>';
+  });
+  return '<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">' + PRD_CSS +
+         '</head><body><div class="prd-content">' + marked.parse(body) + '</div></body></html>';
+}
+
+// 首次进入 PRD 面板时初始化：拉取 Markdown → 生成左侧章节导航 → 渲染全文
+function ensurePrd() {
+  if (prdReady) { return; }
+  prdReady = true;
+  loadPrdDoc(prdDoc);
+}
+
+function switchPrdDoc(key) {
+  if (!PRD_DOCS[key] || key === prdDoc) { return; }
+  prdDoc = key;
+  document.querySelectorAll('.doc-chip').forEach(function(c) {
+    c.classList.toggle('active', c.dataset.doc === key);
+  });
+  loadPrdDoc(key);
+}
+
+function loadPrdDoc(key) {
+  var doc = PRD_DOCS[key];
+  var frame = document.getElementById('contentFrame');
+  frame.removeAttribute('src');
+  frame.className = 'prd-frame';
+
+  document.getElementById('prdNavHeader').textContent = '📄 ' + doc.name + ' · 目录';
+  document.getElementById('infoTerminal').textContent = doc.name;
+  document.getElementById('infoFile').textContent = doc.file.split('/').pop();
+  document.getElementById('openBtn').href = doc.file;
+
+  var items = document.getElementById('prdNavItems');
+  items.innerHTML = '';
+
+  if (prdLoaded[key]) {
+    items.innerHTML = prdLoaded[key].navHtml;
+    bindPrdNav();
+    frame.srcdoc = prdLoaded[key].docHtml;
+    frame.addEventListener('load', function() { wirePrdScrollSpy(); });
+    return;
+  }
+
+  frame.srcdoc = '<div style="padding:40px;color:#999;font-size:13px;">正在加载 ' + doc.name + ' …</div>';
+
+  fetch(doc.file)
+    .then(function(r) { return r.text(); })
+    .then(function(md) {
+      var heads = [];
+      md.replace(/^## (.+)$/gm, function(m, t) { heads.push(t.trim()); return m; });
+
+      var navHtml = '';
+      heads.forEach(function(title, i) {
+        navHtml += '<div class="sidebar-item' + (i === 0 ? ' active' : '') +
+                   '" data-prd-anchor="' + prdSlug(i) + '" data-prd-title="' + title.replace(/"/g, '&quot;') +
+                   '">' + title + '</div>';
+      });
+      prdLoaded[key] = { navHtml: navHtml, docHtml: buildPrdDoc(md), count: heads.length };
+      items.innerHTML = navHtml;
+      bindPrdNav();
+      document.getElementById('prdNavHeader').textContent =
+        '📄 ' + doc.name + ' · ' + heads.length + ' 章';
+      frame.srcdoc = prdLoaded[key].docHtml;
+      frame.addEventListener('load', function() { wirePrdScrollSpy(); });
+    })
+    .catch(function() {
+      frame.srcdoc = '<div style="padding:40px;color:#666;font-size:14px;line-height:1.9;">' +
+        '<div style="font-size:16px;color:#333;margin-bottom:12px;">📄 文档加载失败</div>' +
+        '请点击右上角「↗ 新窗口打开」直接查看 Markdown 源文件。</div>';
+    });
+}
+
+function bindPrdNav() {
+  document.querySelectorAll('.sidebar-item[data-prd-anchor]').forEach(function(item) {
+    item.addEventListener('click', function() {
+      gotoPrd(this.dataset.prdAnchor, this, this.dataset.prdTitle);
+    });
+  });
+}
+
+function gotoPrd(anchor, item, title) {
+  var frame = document.getElementById('contentFrame');
+  var doc = frame.contentDocument;
+  if (doc) {
+    var el = doc.getElementById(anchor);
+    if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+  }
+  document.querySelectorAll('.sidebar-item[data-prd-anchor]').forEach(function(i) { i.classList.remove('active'); });
+  if (item) { item.classList.add('active'); }
+  document.getElementById('toolbarTitle').textContent = PRD_DOCS[prdDoc].label + ' / ' + (title || '全文');
+}
+
+// 滚动联动：右侧滚到哪一章，左侧高亮同步
+function wirePrdScrollSpy() {
+  var frame = document.getElementById('contentFrame');
+  var win = frame.contentWindow, doc = frame.contentDocument;
+  if (!win || !doc) { return; }
+  var heads = [].slice.call(doc.querySelectorAll('h2'));
+  var items = [].slice.call(document.querySelectorAll('.sidebar-item[data-prd-anchor]'));
+  if (!heads.length) { return; }
+
+  function sync() {
+    var line = win.scrollY + 90;
+    var cur = 0;
+    heads.forEach(function(h, i) { if (h.offsetTop <= line) { cur = i; } });
+    items.forEach(function(it, i) { it.classList.toggle('active', i === cur); });
+    if (heads[cur]) {
+      document.getElementById('toolbarTitle').textContent = PRD_DOCS[prdDoc].label + ' / ' + heads[cur].textContent;
+    }
+  }
+  win.addEventListener('scroll', sync, { passive: true });
+  sync();
+}
+
+// ===== 更新信息面板 =====
+function updateInfo(panel, title) {
+  var info = (pageInfo[panel] || {})[title] || {};
+  document.getElementById('infoTab').textContent = info.tabs || '—';
+  document.getElementById('infoBtn').textContent = info.btn || '—';
+  document.getElementById('infoType').textContent = info.type || '—';
+}
+
+// ===== 默认加载第一个 =====
+document.querySelector('.sidebar-section[data-panel="mini"] .sidebar-item').click();
+
+document.querySelectorAll('.doc-chip').forEach(function(c) {
+  c.addEventListener('click', function() { switchPrdDoc(this.dataset.doc); });
+});
+
+window.ensurePrd = ensurePrd;
+</script>
+
+</body>
+</html>
